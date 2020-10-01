@@ -153,7 +153,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react_bootstrap__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react-bootstrap */ "react-bootstrap");
 /* harmony import */ var react_bootstrap__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(react_bootstrap__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _components_useFirebase__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../components/useFirebase */ "./components/useFirebase.tsx");
-var _jsxFileName = "C:\\Users\\USER\\Desktop\\typescript\\my-app\\pages\\welcome.tsx";
+var _jsxFileName = "C:\\Users\\peter\\Projects\\sampleProject\\pages\\welcome.tsx";
 var __jsx = react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement;
 
 
