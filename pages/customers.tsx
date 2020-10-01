@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Accordion, Button, Card, Container, FormControl, InputGroup, Spinner, Table } from 'react-bootstrap';
 import useFirebase from '../components/useFirebase';
-import firebase from 'firebase';
 import { useRouter } from 'next/router';
 import { toast, ToastContainer } from 'react-toastify';
 
-interface Customers {
+export interface Customers {
 	id: string;
 	name: string;
 	email: string;
@@ -13,9 +12,9 @@ interface Customers {
 	phone: string;
 	type: 'Roaster' | 'One-off';
 }
-[];
+
 export default function Customers(): JSX.Element {
-	const [customers, setCustomers] = useState<Customers[]>([]);
+	const [customers, setCustomers] = useState<Array<Customers>>([]);
 	const [name, setName] = useState('');
 	const [email, setEmail] = useState('');
 	const [phone, setPhone] = useState('');
@@ -23,7 +22,7 @@ export default function Customers(): JSX.Element {
 	const [loading, setLoading] = useState(false);
 	const router = useRouter();
 	const app = useContext(useFirebase);
-	// const firestore = app.firestore();
+	const firestore = app.firestore();
 
 	const AddCustomer = async () => {
 		if (name.length < 5) return toast.error('customer name must be grater that 5 characters');
@@ -43,7 +42,7 @@ export default function Customers(): JSX.Element {
 			type: 'One-off',
 		};
 		try {
-			const res = await firebase.firestore().collection('customers').add(newCustomer);
+			const res = await firestore.collection('customers').add(newCustomer);
 
 			toast.success('customer added to the database');
 			setLoading(false);
@@ -55,7 +54,7 @@ export default function Customers(): JSX.Element {
 		setLoading(false);
 		//call the backend to add the customer
 	};
-	const handleDelete = (id: any) => {
+	const handleDelete = (id: string) => {
 		const deleteConfirm = confirm('Are you sure you ant to delete this document?');
 		if (deleteConfirm) {
 			//update the state
@@ -66,21 +65,24 @@ export default function Customers(): JSX.Element {
 			console.log(id);
 		}
 	};
-	const handleEdit = (id: any) => {
+	const handleEdit = (id: string) => {
 		//find the customer with the give id and edit
 		console.log(id);
 	};
 	useEffect(() => {
 		async function getCustomers() {
-			const citiesRef = firebase.firestore().collection('customers');
+			const citiesRef = firestore.collection('customers');
 			const snapshot = await citiesRef.get();
+
+			const customers: Array<Customers> = [];
+
 			snapshot.forEach((doc) => {
-				setCustomers([...customers, doc.data()]);
-				console.log(console.log(customers));
+				customers.push(doc.data() as Customers);
 			});
+
+			setCustomers(customers);
 		}
-		const allCustomer = getCustomers();
-		console.log(allCustomer);
+		getCustomers();
 	}, []);
 	return (
 		<Container>
