@@ -1,8 +1,26 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Accordion, Button, Card, Container, FormControl, InputGroup, Spinner, Table } from 'react-bootstrap';
+import {
+	Button,
+	Card,
+	Col,
+	Container,
+	Form,
+	FormControl,
+	FormGroup,
+	InputGroup,
+	Row,
+	Spinner,
+	Table,
+} from 'react-bootstrap';
 import useFirebase from '../components/useFirebase';
 import { useRouter } from 'next/router';
 import { toast, ToastContainer } from 'react-toastify';
+import AuthGuard from '../components/Authentification';
+import Pagination from '../components/common/pagination';
+import { paginate } from '../components/utils/paginate';
+import CustomersTable from '../components/customersTable';
+import Navigation from '../components/Navigation';
+const _ = require('lodash');
 
 export interface Customers {
 	id: string;
@@ -11,53 +29,37 @@ export interface Customers {
 	address: string;
 	phone: string;
 	type: 'Roaster' | 'One-off';
+	_id?: any;
 }
 
 export default function Customers(): JSX.Element {
 	const [customers, setCustomers] = useState<Array<Customers>>([]);
+	const [loading, setLoading] = useState(false);
 	const [name, setName] = useState('');
 	const [email, setEmail] = useState('');
 	const [phone, setPhone] = useState('');
 	const [address, setAddress] = useState('');
-	const [loading, setLoading] = useState(false);
+	const [id, setId] = useState('');
+	const [pageSize, setPageSize] = useState(5);
+	const [currentPage, setCurrentpage] = useState(1);
+	const [sortColumns, setSortColumn] = useState({ path: 'title', order: 'asc' });
 	const router = useRouter();
 	const app = useContext(useFirebase);
 	const firestore = app.firestore();
 
-	const AddCustomer = async () => {
-		if (name.length < 5) return toast.error('customer name must be grater that 5 characters');
-		if (email.length < 7) return toast.error('customer email must be grater that 7 characters');
-		if (address.length < 5) return toast.error('customer address must be grater that 5 characters');
-		if (phone.length < 7) return toast.error('customer phone number must be grater that 7 characters');
-		if (name.length > 100 || email.length > 50 || address.length > 100 || phone.length > 20)
-			return toast.error('Invalid Request');
-		setLoading(true);
-		const now = Date.now();
-		const newCustomer: Customers = {
-			id: `${now}`,
-			name: name,
-			email: email,
-			phone: phone,
-			address: address,
-			type: 'One-off',
-		};
-		try {
-			const res = await firestore.collection('customers').add(newCustomer);
-
-			toast.success('customer added to the database');
-			setLoading(false);
-			console.log(res);
-			router.reload();
-		} catch (error) {
-			toast.error('Cant connect to database now');
-		}
-		setLoading(false);
-		//call the backend to add the customer
-	};
-	const handleDelete = (id: string) => {
+	const handleDelete = async (id: string) => {
 		const deleteConfirm = confirm('Are you sure you ant to delete this document?');
 		if (deleteConfirm) {
 			//update the state
+			const allCustomers = customers;
+			const filtered = allCustomers.filter((m) => m._id !== id);
+			setCustomers(filtered);
+			try {
+				await firestore.collection('customers').doc(id).delete();
+			} catch (error) {
+				toast.error('cant perform this operation');
+				setCustomers(allCustomers);
+			}
 
 			//call the database to delete the customer with the id
 
@@ -65,9 +67,44 @@ export default function Customers(): JSX.Element {
 			console.log(id);
 		}
 	};
-	const handleEdit = (id: string) => {
-		//find the customer with the give id and edit
-		console.log(id);
+	const handleEdit = (customer: Customers) => {
+		setName(customer.name);
+		setEmail(customer.email);
+		setPhone(customer.phone);
+		setAddress(customer.address);
+		setId(customer._id);
+	};
+	const handlePageChange = (page: number) => {
+		setCurrentpage(page);
+	};
+	const handleSort = (path: string) => {
+		const sortColumn = { ...sortColumns };
+		if (sortColumn.path === path) sortColumn.order = sortColumn.order === 'asc' ? 'desc' : 'asc';
+		else {
+			sortColumn.path = path;
+			sortColumn.order = 'asc';
+		}
+		setSortColumn(sortColumn);
+	};
+	const handleUpdate = async (id: string) => {
+		if (name.length < 5 || email.length < 5) return toast.error('Name and Email must be greater than 5 character');
+		if (address.length < 5 || phone.length < 5)
+			return toast.error('Address and Phone number must be greater than 5 characters');
+		setLoading(true);
+		try {
+			const updatedCustomers = await firestore
+				.collection('customers')
+				.doc(id)
+				.update({ name: name, email: email, address: address, phone: phone });
+			toast.success('Updated successfully');
+			const allCustomers = { ...customers, updatedCustomers };
+			setCustomers(allCustomers);
+			setLoading(false);
+			router.reload();
+		} catch (e) {
+			return toast.error("Can't connect with database for now");
+			setLoading(false);
+		}
 	};
 	useEffect(() => {
 		async function getCustomers() {
@@ -77,107 +114,119 @@ export default function Customers(): JSX.Element {
 			const customers: Array<Customers> = [];
 
 			snapshot.forEach((doc) => {
-				customers.push(doc.data() as Customers);
+				let currentId = doc.id;
+				let appObj = { ...doc.data(), ['_id']: currentId };
+				customers.push(appObj as Customers);
+				console.log(customers);
 			});
 
 			setCustomers(customers);
 		}
 		getCustomers();
 	}, []);
-	return (
-		<Container>
-			<Card className="pa-2">
-				<Card.Header>
-					<span className="material-icons">Customers_table</span>
-					<Accordion>
-						<Accordion.Toggle className="float-right btn btn-info m-2" eventKey="0">
-							NEW CUSTOMER
-						</Accordion.Toggle>
-						<Accordion.Collapse eventKey="0">
-							<Card.Body>
-								<InputGroup className="mb-3">
-									<InputGroup.Prepend>
-										<InputGroup.Text>Details</InputGroup.Text>
-									</InputGroup.Prepend>
-									<FormControl
-										type="text"
-										placeholder="Customers name.."
-										value={name}
-										onChange={(e) => setName(e.target.value)}
-									/>
-									<FormControl
-										type="email"
-										placeholder="Customers Email"
-										value={email}
-										onChange={(e) => setEmail(e.target.value)}
-									/>
-									<FormControl
-										type="text"
-										placeholder="Customers address"
-										value={address}
-										onChange={(e) => setAddress(e.target.value)}
-									/>
-									<FormControl
-										type="tel"
-										placeholder="phone Number"
-										value={phone}
-										onChange={(e) => setPhone(e.target.value)}
-									/>
-									<Button className="ml-2" onClick={AddCustomer}>
-										{loading ? <Spinner animation="border" variant="ligth" /> : <span>Add</span>}
-									</Button>
-								</InputGroup>
-							</Card.Body>
-						</Accordion.Collapse>
-					</Accordion>
-				</Card.Header>
-				<Card.Body>
-					<Table striped bordered hover>
-						<thead>
-							<tr>
-								<th>
-									<span className="material-icons">Name</span>
-								</th>
-								<th>
-									<span className="material-icons">Email</span>
-								</th>
-								<th>
-									<span className="material-icons">Address</span>
-								</th>
-								<th>
-									<span className="material-icons">Phone</span>
-								</th>
-								<th>
-									<span className="material-icons">add</span>
-								</th>
-								<th>
-									<span className="material-icons">delete</span>
-								</th>
-							</tr>
-						</thead>
-						<tbody>
-							{customers.map((customer) => (
-								<tr key={customer.id}>
-									<td>{customer.name}</td>
 
-									<td>{customer.email}</td>
-									<td>{customer.address}</td>
-									<td>{customer.phone}</td>
-									<td>
-										<Button onClick={() => handleEdit(customer.id)}>Edit</Button>
-									</td>
-									<td>
-										<Button onClick={() => handleDelete(customer.id)} className="btn-danger">
-											Delete
+	const sorted = _.orderBy(customers, [sortColumns.path], [sortColumns.order]);
+	const paginatedCustomers = paginate(sorted, currentPage, pageSize);
+	return (
+		<AuthGuard>
+			<Container className="pl-0">
+				<Navigation></Navigation>
+				<Row className="mb-10 pb-12">
+					<Col lg={4} className="float-left">
+						<Card className="pr-1">
+							<Card.Header>
+								<h5>Edit Customers</h5>
+							</Card.Header>
+							<Card.Body>
+								<Form>
+									<FormGroup>
+										<Form.Label>Name</Form.Label>
+										<Form.Control
+											type="text"
+											placeholder="name..."
+											value={name}
+											onChange={(e) => setName(e.target.value)}
+										></Form.Control>
+									</FormGroup>
+									<FormGroup>
+										<Form.Label>Email</Form.Label>
+										<Form.Control
+											type="text"
+											placeholder="email..."
+											value={email}
+											onChange={(e) => setEmail(e.target.value)}
+										></Form.Control>
+									</FormGroup>
+									<FormGroup>
+										<Form.Label>Address</Form.Label>
+										<Form.Control
+											type="text"
+											placeholder="address..."
+											value={address}
+											onChange={(e) => setAddress(e.target.value)}
+										></Form.Control>
+									</FormGroup>
+									<FormGroup>
+										<Form.Label>Phone</Form.Label>
+										<Form.Control
+											type="text"
+											placeholder="contact..."
+											value={phone}
+											onChange={(e) => setPhone(e.target.value)}
+										></Form.Control>
+									</FormGroup>
+									<Form.Group>
+										<Button className="btn-secondary" onClick={() => handleUpdate(id)}>
+											{!loading ? (
+												<span>Update</span>
+											) : (
+												<>
+													<Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+													<span className="sr-only">Updating...</span>
+												</>
+											)}
 										</Button>
-									</td>
-								</tr>
-							))}
-						</tbody>
-					</Table>
-				</Card.Body>
-			</Card>
-			<ToastContainer></ToastContainer>
-		</Container>
+									</Form.Group>
+								</Form>
+							</Card.Body>
+						</Card>
+					</Col>
+					<Col lg={8} className="float-right">
+						<Card>
+							<Card.Header>
+								Customers
+								<span className="float-right">
+									<Button className="btn-sm">
+										<span
+											className="big material-icons"
+											style={{ cursor: 'pointer', color: 'white' }}
+											onClick={() => router.push('/customersForm')}
+										>
+											new customer
+										</span>
+									</Button>
+								</span>
+							</Card.Header>
+
+							<Card.Body>
+								<CustomersTable
+									customersPaginate={paginatedCustomers}
+									onDelete={handleDelete}
+									onEdit={handleEdit}
+									onSort={handleSort}
+								></CustomersTable>
+								<Pagination
+									itemsCount={customers.length}
+									currentPage={currentPage}
+									pageSize={pageSize}
+									onPageChange={handlePageChange}
+								></Pagination>
+							</Card.Body>
+							<ToastContainer></ToastContainer>
+						</Card>
+					</Col>
+				</Row>
+			</Container>
+		</AuthGuard>
 	);
 }

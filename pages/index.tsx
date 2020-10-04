@@ -1,11 +1,17 @@
-import React, { useContext, useState, useRef, useEffect } from 'react';
+import React, { useContext, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Button, Card, Col, Container, Form, Row, Spinner } from 'react-bootstrap';
 import { toast, ToastContainer } from 'react-toastify';
 import useFirebase from '../components/useFirebase';
 import styles from '../styles/cardHeader.module.scss';
+import Navigation from '../components/Navigation';
+import AuthGuard from '../components/Authentification';
 
-export default function Home(): JSX.Element {
+interface HomeProp {
+	children: Array<JSX.Element> | JSX.Element;
+}
+
+export default function Home({ children }: HomeProp): JSX.Element {
 	const authentification = useContext(useFirebase);
 	const app = authentification.auth();
 	const [email, setEmail] = useState('');

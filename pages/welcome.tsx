@@ -1,6 +1,8 @@
 import { useRouter } from 'next/router';
 import React, { useContext, useState } from 'react';
 import { Button, Container, Spinner } from 'react-bootstrap';
+import AuthGuard from '../components/Authentification';
+import Navigation from '../components/Navigation';
 import useFirebase from '../components/useFirebase';
 
 export default function Welcome(): JSX.Element {
@@ -20,6 +22,8 @@ export default function Welcome(): JSX.Element {
 
 	return (
 		<Container>
+			<Navigation></Navigation>
+			<br></br>
 			Sample Welcome page
 			<Button variant="danger" className="btn btn-md" onClick={handleLogOut}>
 				{!loading ? <span>LouOut</span> : <Spinner animation="border"></Spinner>}

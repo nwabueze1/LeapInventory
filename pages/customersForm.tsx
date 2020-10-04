@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { Accordion, Button, Card, Container, FormControl, InputGroup, Spinner, Table } from 'react-bootstrap';
+import React, { useState, useContext, useRef, useEffect } from 'react';
+import { Button, Card, Col, Form, Row, Spinner } from 'react-bootstrap';
 import useFirebase from '../components/useFirebase';
 import { useRouter } from 'next/router';
 import { toast, ToastContainer } from 'react-toastify';
@@ -15,119 +15,107 @@ export interface Customers {
 	_id?: any;
 }
 
-export default function Customers(): JSX.Element {
-	const [customers, setCustomers] = useState<Array<Customers>>([]);
+export default function CustomersForm() {
+	const [name, setName] = useState('');
+	const [email, setEmail] = useState('');
+	const [phone, setPhone] = useState('');
+	const [address, setAddress] = useState('');
+	const [loading, setLoading] = useState(false);
+
 	const router = useRouter();
 	const app = useContext(useFirebase);
 	const firestore = app.firestore();
-
-	const handleDelete = async (id: string) => {
-		const deleteConfirm = confirm('Are you sure you ant to delete this document?');
-		if (deleteConfirm) {
-			//update the state
-			const allCustomers = customers;
-			const filtered = allCustomers.filter((m) => m._id !== id);
-			setCustomers(filtered);
-			try {
-				await firestore.collection('customers').doc(id).delete();
-			} catch (error) {
-				toast.error('cant perform this operation');
-				setCustomers(allCustomers);
-			}
-
-			//call the database to delete the customer with the id
-
-			toast.success('deleted successfully');
-			console.log(id);
+	const AddCustomer = async () => {
+		if (name.length < 5) return toast.error('customer name must be grater that 5 characters');
+		if (email.length < 7) return toast.error('customer email must be grater that 7 characters');
+		if (address.length < 5) return toast.error('customer address must be grater that 5 characters');
+		if (phone.length < 7) return toast.error('customer phone number must be grater that 7 characters');
+		if (name.length > 100 || email.length > 50 || address.length > 100 || phone.length > 20)
+			return toast.error('Invalid Request');
+		setLoading(true);
+		const now = Date.now();
+		const newCustomer: Customers = {
+			id: `${now}`,
+			name: name,
+			email: email,
+			phone: phone,
+			address: address,
+			type: 'One-off',
+		};
+		try {
+			//call the backend to add the customer
+			const res = await firestore.collection('customers').add(newCustomer);
+			toast.success('customer added to the database');
+			setLoading(false);
+			console.log(res);
+			router.push('/customers');
+		} catch (error) {
+			toast.error('Cant connect to database now');
 		}
+		setLoading(false);
 	};
-	const handleEdit = (id: string) => {
-		// router.push(`customersForm/${id}`);
-		//find the customer with the give id and edit
-		console.log(id);
+	const handleEdit = async (id: string) => {
+		const customers = await firestore.collection('customers').doc(id);
+		router.push(`customers/${id}`);
 	};
-	useEffect(() => {
-		async function getCustomers() {
-			const citiesRef = firestore.collection('customers');
-			const snapshot = await citiesRef.get();
 
-			const customers: Array<Customers> = [];
-
-			snapshot.forEach((doc) => {
-				let currentId = doc.id;
-				let appObj = { ...doc.data(), ['_id']: currentId };
-				customers.push(appObj as Customers);
-				console.log(customers);
-			});
-
-			setCustomers(customers);
-		}
-		getCustomers();
-	}, []);
 	return (
 		<AuthGuard>
-			<Container>
-				<Card>
-					<Card.Header>
-						Customers
-						<span className="float-right">
-							<Button onClick={() => router.push('/customersForm')} className="btn-info">
-								Add
-							</Button>
-						</span>
-					</Card.Header>
-
-					<Card.Body>
-						<Table striped bordered hover>
-							<thead>
-								<tr>
-									<th>S/N</th>
-									<th>
-										<span className="material-icons">person</span>
-									</th>
-									<th>
-										<span className="material-icons">mail</span>
-									</th>
-									<th>
-										<span className="material-icons">address</span>
-									</th>
-									<th>
-										<span className="material-icons">contact_phone</span>
-									</th>
-									<th>
-										<span className="material-icons">add</span>
-									</th>
-									<th>
-										<span className="material-icons">delete</span>
-									</th>
-								</tr>
-							</thead>
-							<tbody>
-								{customers.map((customer, index) => (
-									<tr key={customer.id}>
-										<td>{index + 1}</td>
-										<td>{customer.name}</td>
-
-										<td>{customer.email}</td>
-										<td>{customer.address}</td>
-										<td>{customer.phone}</td>
-
-										<td>
-											<Button onClick={() => handleEdit(customer._id)}>Edit</Button>
-										</td>
-										<td>
-											<Button onClick={() => handleDelete(customer._id)} className="btn-danger">
-												Delete
-											</Button>
-										</td>
-									</tr>
-								))}
-							</tbody>
-						</Table>
-					</Card.Body>
-					<ToastContainer></ToastContainer>
-				</Card>
-			</Container>
+			<Row className="justify-content-center p-5">
+				<Col lg={4}>
+					<Card className="shadow">
+						<Card.Header style={{ backgroundBlendMode: '-moz-initial' }}></Card.Header>
+						<Card.Body>
+							<Form onSubmit={AddCustomer}>
+								<Form.Group>
+									<Form.Label>Name</Form.Label>
+									<Form.Control
+										type="text"
+										value={name}
+										onChange={(e) => setName(e.target.value)}
+										placeholder="enter full name"
+										// ref={inputRef}
+									></Form.Control>
+								</Form.Group>
+								<Form.Group>
+									<Form.Label>Email</Form.Label>
+									<Form.Control
+										type="email"
+										value={email}
+										onChange={(e) => setEmail(e.target.value)}
+										placeholder="enter  email"
+									></Form.Control>
+								</Form.Group>
+								<Form.Group>
+									<Form.Label>Address</Form.Label>
+									<Form.Control
+										type="text"
+										value={address}
+										onChange={(e) => setAddress(e.target.value)}
+										placeholder="enter  address"
+									></Form.Control>
+								</Form.Group>
+							</Form>
+							<Form.Group>
+								<Form.Label>phone</Form.Label>
+								<Form.Control
+									type="text"
+									value={phone}
+									onChange={(e) => setPhone(e.target.value)}
+									placeholder="enter  phoneNumber"
+								></Form.Control>
+							</Form.Group>
+							<Form.Group>
+								<Button className="ml-2 btn-secondary mb-0 pb-1" onClick={AddCustomer}>
+									{loading ? <Spinner animation="border" variant="ligth" /> : <span>Insert</span>}
+								</Button>
+							</Form.Group>
+						</Card.Body>
+						<Card.Footer style={{ backgroundBlendMode: '-moz-initial' }}></Card.Footer>
+					</Card>
+				</Col>
+				<ToastContainer></ToastContainer>
+			</Row>
 		</AuthGuard>
 	);
 }
