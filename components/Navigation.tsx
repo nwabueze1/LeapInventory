@@ -6,7 +6,7 @@ export default function Navigation() {
 	const router = useRouter();
 	return (
 		<>
-			<Navbar bg="dark" variant="dark">
+			<Navbar bg="dark" variant="dark" className="pb-5 mb-5">
 				<Navbar.Brand onClick={() => router.push('/welcome')}>
 					<h5>WELCOME</h5>
 				</Navbar.Brand>
