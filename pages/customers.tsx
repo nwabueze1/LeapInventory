@@ -1,51 +1,121 @@
 import React, { useState, useEffect, useContext } from 'react';
-import {
-	Button,
-	Card,
-	Col,
-	Container,
-	Form,
-	FormControl,
-	FormGroup,
-	InputGroup,
-	Row,
-	Spinner,
-	Table,
-} from 'react-bootstrap';
+import { Button, Card, Col, Container, Form, FormGroup, Row, Spinner, Table } from 'react-bootstrap';
 import useFirebase from '../components/useFirebase';
 import { useRouter } from 'next/router';
 import { toast, ToastContainer } from 'react-toastify';
 import AuthGuard from '../components/Authentification';
-import Pagination from '../components/common/pagination';
-import { paginate } from '../components/utils/paginate';
-import CustomersTable from '../components/customersTable';
 import Navigation from '../components/Navigation';
-const _ = require('lodash');
+import styles from '../styles/table.module.scss';
 
-export interface Customers {
+interface Customers {
 	id: string;
 	name: string;
 	email: string;
 	address: string;
 	phone: string;
+	category?: string;
 	type: 'Roaster' | 'One-off';
-	_id?: any;
+	_id?: string;
+}
+interface Categories {
+	id: string;
+	name: string;
+	_id: string;
+}
+interface EditCustomers {
+	name: string;
+	email: string;
+	address: string;
+	phone: string;
+	_id: string;
+	category: string;
 }
 
-export default function Customers(): JSX.Element {
+function Customers(): JSX.Element {
 	const [customers, setCustomers] = useState<Array<Customers>>([]);
+	const [categories, setCategories] = useState<Array<Categories>>([]);
+
 	const [loading, setLoading] = useState(false);
 	const [name, setName] = useState('');
 	const [email, setEmail] = useState('');
 	const [phone, setPhone] = useState('');
+	const [category, setCategory] = useState('');
 	const [address, setAddress] = useState('');
 	const [id, setId] = useState('');
-	const [pageSize, setPageSize] = useState(5);
-	const [currentPage, setCurrentpage] = useState(1);
-	const [sortColumns, setSortColumn] = useState({ path: 'title', order: 'asc' });
 	const router = useRouter();
 	const app = useContext(useFirebase);
 	const firestore = app.firestore();
+
+	useEffect(() => {
+		async function getCustomers() {
+			//fetching of data from fiestore
+			const customersRef = firestore.collection('customers');
+			const snapshot = await customersRef.get();
+
+			const customers: Array<Customers> = [];
+
+			snapshot.forEach((doc) => {
+				const appObj = { ...doc.data(), ['_id']: doc.id };
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
+				customers.push(appObj as Customers);
+			});
+
+			setCustomers(customers);
+		}
+		async function getCategory() {
+			const categoryRef = firestore.collection('category');
+			const snapshot = await categoryRef.get();
+
+			const categories: Array<Categories> = [];
+			snapshot.forEach((doc) => {
+				const appObj = { ...doc.data(), ['_id']: doc.id };
+				categories.push(appObj as Categories);
+			});
+			setCategories(categories);
+		}
+		getCategory();
+		getCustomers();
+	}, []);
+
+	const reset = () => {
+		// this is for reseting all the states vriables to their initial value
+		setName('');
+		setEmail('');
+		setPhone('');
+		setAddress('');
+		setId('');
+		setCategory('');
+	};
+	const handleAdd = async () => {
+		if (name.length < 5) return toast.error('customer name must be grater that 5 characters');
+		if (email.length < 7) return toast.error('customer email must be grater that 7 characters');
+		if (address.length < 5) return toast.error('customer address must be grater that 5 characters');
+		if (phone.length < 7) return toast.error('customer phone number must be grater that 7 characters');
+		if (category.length < 1) return toast.error('please select a category');
+		if (name.length > 100 || email.length > 50 || address.length > 100 || phone.length > 20)
+			return toast.error('Invalid Request');
+
+		setLoading(true);
+		const now = Date.now();
+		const newCustomer: Customers = {
+			id: `${now}`,
+			name: name,
+			email: email,
+			address: address,
+			category: category,
+			phone: phone,
+			type: 'One-off',
+		};
+		try {
+			await firestore.collection('customers').add(newCustomer);
+			toast.success('Customer Added Successfully');
+			setCustomers([...customers, newCustomer]);
+			reset();
+		} catch (error) {
+			return toast.error("can't connect to server right now");
+		}
+		setLoading(false);
+	};
 
 	const handleDelete = async (id: string) => {
 		const deleteConfirm = confirm('Are you sure you ant to delete this document?');
@@ -55,47 +125,40 @@ export default function Customers(): JSX.Element {
 			const filtered = allCustomers.filter((m) => m._id !== id);
 			setCustomers(filtered);
 			try {
+				//call the database to delete the customer with the id
 				await firestore.collection('customers').doc(id).delete();
 			} catch (error) {
-				toast.error('cant perform this operation');
+				return toast.error('cant perform this operation');
 				setCustomers(allCustomers);
 			}
-
-			//call the database to delete the customer with the id
 
 			toast.success('deleted successfully');
 			console.log(id);
 		}
 	};
-	const handleEdit = (customer: Customers) => {
+
+	const handleEdit = (customer: EditCustomers) => {
+		//for populating the form
 		setName(customer.name);
 		setEmail(customer.email);
 		setPhone(customer.phone);
 		setAddress(customer.address);
+		setCategory(customer.category);
 		setId(customer._id);
 	};
-	const handlePageChange = (page: number) => {
-		setCurrentpage(page);
-	};
-	const handleSort = (path: string) => {
-		const sortColumn = { ...sortColumns };
-		if (sortColumn.path === path) sortColumn.order = sortColumn.order === 'asc' ? 'desc' : 'asc';
-		else {
-			sortColumn.path = path;
-			sortColumn.order = 'asc';
-		}
-		setSortColumn(sortColumn);
-	};
+
 	const handleUpdate = async (id: string) => {
 		if (name.length < 5 || email.length < 5) return toast.error('Name and Email must be greater than 5 character');
 		if (address.length < 5 || phone.length < 5)
 			return toast.error('Address and Phone number must be greater than 5 characters');
+		if (category.length < 1) return toast.error('please select a category');
 		setLoading(true);
 		try {
+			//contact the server to update the customer with the given id
 			const updatedCustomers = await firestore
 				.collection('customers')
 				.doc(id)
-				.update({ name: name, email: email, address: address, phone: phone });
+				.update({ name: name, email: email, address: address, phone: phone, category: category });
 			toast.success('Updated successfully');
 			const allCustomers = { ...customers, updatedCustomers };
 			setCustomers(allCustomers);
@@ -103,37 +166,17 @@ export default function Customers(): JSX.Element {
 			router.reload();
 		} catch (e) {
 			return toast.error("Can't connect with database for now");
-			setLoading(false);
 		}
+		setLoading(false);
 	};
-	useEffect(() => {
-		async function getCustomers() {
-			const citiesRef = firestore.collection('customers');
-			const snapshot = await citiesRef.get();
 
-			const customers: Array<Customers> = [];
-
-			snapshot.forEach((doc) => {
-				let currentId = doc.id;
-				let appObj = { ...doc.data(), ['_id']: currentId };
-				customers.push(appObj as Customers);
-				console.log(customers);
-			});
-
-			setCustomers(customers);
-		}
-		getCustomers();
-	}, []);
-
-	const sorted = _.orderBy(customers, [sortColumns.path], [sortColumns.order]);
-	const paginatedCustomers = paginate(sorted, currentPage, pageSize);
 	return (
 		<AuthGuard>
-			<Container className="pl-0">
+			<Container className={styles.Main}>
 				<Navigation></Navigation>
 				<Row className="mb-10 pb-12">
-					<Col lg={4} className="float-left">
-						<Card className="pr-1">
+					<Col lg={3} className="float-left">
+						<Card className={styles.card}>
 							<Card.Header>
 								<h5>Edit Customers</h5>
 							</Card.Header>
@@ -157,6 +200,15 @@ export default function Customers(): JSX.Element {
 											onChange={(e) => setEmail(e.target.value)}
 										></Form.Control>
 									</FormGroup>
+									<Form.Group>
+										<Form.Label>Category</Form.Label>
+										<Form.Control as="select" value={category} onChange={(e) => setCategory(e.target.value)}>
+											<option></option>
+											{categories.map((cate) => (
+												<option key={cate.id}>{cate.name}</option>
+											))}
+										</Form.Control>
+									</Form.Group>
 									<FormGroup>
 										<Form.Label>Address</Form.Label>
 										<Form.Control
@@ -176,51 +228,93 @@ export default function Customers(): JSX.Element {
 										></Form.Control>
 									</FormGroup>
 									<Form.Group>
-										<Button className="btn-secondary" onClick={() => handleUpdate(id)}>
-											{!loading ? (
-												<span>Update</span>
-											) : (
-												<>
-													<Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
-													<span className="sr-only">Updating...</span>
-												</>
-											)}
+										{!id ? ( //No Id meaning customer does not exist in the table so we render the create customer button
+											//to dynamically render this button we call the id of the useState
+											<Button className="btn-sm btn-primary" onClick={handleAdd}>
+												{loading ? (
+													<Spinner animation="border" variant="ligth" />
+												) : (
+													<span className={styles.text}>Insert</span>
+												)}
+											</Button>
+										) : (
+											<Button className=" btn-sm btn-secondary" onClick={() => handleUpdate(id)}>
+												{!loading ? (
+													<span>Update</span>
+												) : (
+													<>
+														<Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+														<span className="sr-only">Updating...</span>
+													</>
+												)}
+											</Button>
+										)}
+										<Button className="btn-danger float-right" onClick={() => reset()}>
+											Reset
 										</Button>
 									</Form.Group>
 								</Form>
 							</Card.Body>
 						</Card>
 					</Col>
-					<Col lg={8} className="float-right">
-						<Card>
+					<Col lg={9} className="float-right">
+						<Card className={styles.container}>
 							<Card.Header>
-								Customers
-								<span className="float-right">
-									<Button className="btn-sm">
-										<span
-											className="big material-icons"
-											style={{ cursor: 'pointer', color: 'white' }}
-											onClick={() => router.push('/customersForm')}
-										>
-											new customer
-										</span>
-									</Button>
-								</span>
+								{customers.length === 0 ? (
+									//conditionally render the number of cutomers if no custmers exists in the database we render the firstone
+									<span className={styles.Table}>There are customer in the database</span>
+								) : (
+									//else we render this
+									<span className={styles.Table}>found {customers.length} Customers </span>
+								)}
 							</Card.Header>
-
 							<Card.Body>
-								<CustomersTable
-									customersPaginate={paginatedCustomers}
-									onDelete={handleDelete}
-									onEdit={handleEdit}
-									onSort={handleSort}
-								></CustomersTable>
-								<Pagination
-									itemsCount={customers.length}
-									currentPage={currentPage}
-									pageSize={pageSize}
-									onPageChange={handlePageChange}
-								></Pagination>
+								<Table className="table-bordered table-sm ">
+									<thead>
+										<tr>
+											<th>S/N</th>
+											<th className={styles.thead}>Name</th>
+											<th className={styles.thead}>Email</th>
+											<th className={styles.thead}>category</th>
+											<th className={styles.thead}>address</th>
+											<th className={styles.thead}>phone</th>
+											<th>Delete</th>
+											<th>Edit</th>
+										</tr>
+									</thead>
+									<tbody>
+										{customers.map((customer: Customers, index: number) => (
+											<tr key={customer.id}>
+												<td className={styles.thead}>{index + 1}</td>
+												<td className={styles.thead}>{customer.name}</td>
+												<td className={styles.thead}>{customer.email}</td>
+												<td className={styles.thead}>{customer.category}</td>
+												<td className={styles.thead}>{customer.address}</td>
+												<td className={styles.thead}>{customer.phone}</td>
+												<td>
+													<Button
+														className="btn-sm btn-primary"
+														onClick={() => {
+															handleEdit(customer as EditCustomers);
+														}}
+													>
+														Edit
+													</Button>
+												</td>
+												<td>
+													<Button
+														className="btn-sm btn-danger"
+														onClick={() => {
+															handleDelete(customer._id as string);
+														}}
+													>
+														Delete
+													</Button>
+												</td>
+											</tr>
+										))}
+									</tbody>
+								</Table>
 							</Card.Body>
 							<ToastContainer></ToastContainer>
 						</Card>
@@ -230,3 +324,5 @@ export default function Customers(): JSX.Element {
 		</AuthGuard>
 	);
 }
+
+export default Customers;
