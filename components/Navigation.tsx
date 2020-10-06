@@ -12,7 +12,7 @@ export default function Navigation() {
 				</Navbar.Brand>
 				<Nav className="mr-auto">
 					<Nav.Link onClick={() => router.push('/welcome')}>Home</Nav.Link>
-					<Nav.Link onClick={() => router.push('/customers')}>Customers</Nav.Link>
+					<Nav.Link onClick={() => router.push('/products')}>Customers</Nav.Link>
 					<Nav.Link href="/welcome">Pricing</Nav.Link>
 				</Nav>
 				<Form inline>
