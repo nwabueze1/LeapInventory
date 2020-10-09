@@ -1,0 +1,88 @@
+.form {
+	border: 1px solid rgb(7, 5, 5);
+	background-color: rgb(149, 149, 149);
+	margin-top: 12px;
+	color: #0a0606;
+	padding-left: 5px;
+	margin-left: 9px;
+	padding-top: 1px;
+	box-shadow: 5px 5px 6px rgb(255, 211, 211);
+	font-weight: bold;
+}
+
+
+
+.welcome {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-style: oblique;
+	margin-bottom: 0;
+	padding-bottom: 0;
+	color: #161616;
+}
+
+.welcome:hover {
+	transition: all 3s;
+	transform: scale(1.2);
+	text-shadow: #868686;
+	cursor: pointer;
+}
+
+.row {
+	padding-top: 15px;
+}
+
+.col {
+	padding-left: 15px;
+	padding-right: 15px;
+}
+
+.header {
+	display: flex;
+	justify-content: center;
+	align-content: center;
+	color: #fafafa;
+	font-style: oblique;
+}
+
+.div {
+	background-color: rgb(255, 255, 255);
+}
+
+.input {
+	padding-left: 14px;
+	padding-right: 14px;
+}
+
+.button {
+	padding-left: 10px;
+}
+
+.control {
+	box-shadow: 5px 5px 6px rgb(97, 92, 96);
+}
+
+.thead {
+	background-color: rgb(204, 204, 204);
+	font-weight: 200%;
+	color: rgb(0, 0, 0);
+}
+
+
+
+.tbody {
+	background-color: rgb(204, 204, 204);
+	font-weight: 200%;
+	color: #000000;
+	margin-top: 0;
+	padding-top: 0;
+}
+
+// .tbody:hover {
+//     cursor: pointer;
+//     font-weight: bold;
+//     box-shadow: 5px 5px 6px rgb(73, 31, 67);
+
+//     color: #ffffff;
+// }

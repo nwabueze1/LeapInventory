@@ -238,6 +238,7 @@ function Customers(): JSX.Element {
 												)}
 											</Button>
 										) : (
+											//else their is an id so we render the update button tag
 											<Button className=" btn-sm btn-secondary" onClick={() => handleUpdate(id)}>
 												{!loading ? (
 													<span>Update</span>
@@ -257,16 +258,25 @@ function Customers(): JSX.Element {
 							</Card.Body>
 						</Card>
 					</Col>
+
 					<Col lg={9} className="float-right">
 						<Card className={styles.container}>
 							<Card.Header>
 								{customers.length === 0 ? (
 									//conditionally render the number of cutomers if no custmers exists in the database we render the firstone
-									<span className={styles.Table}>There are customer in the database</span>
+									<span className={styles.Table}>There are No customer in the database. checking for updates...</span>
 								) : (
 									//else we render this
 									<span className={styles.Table}>found {customers.length} Customers </span>
 								)}
+								<Button
+									className="btn-info float-right"
+									onClick={() => {
+										router.push('/sales');
+									}}
+								>
+									Post sales
+								</Button>
 							</Card.Header>
 							<Card.Body>
 								<Table className="table-bordered table-sm ">

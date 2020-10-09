@@ -6,6 +6,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import Navigation from '../components/Navigation';
 import useFireBase from '../components/useFirebase';
 import styles from '../styles/products.module.scss';
+import customers from './api/customers';
 
 interface Products {
 	name: string;
@@ -83,6 +84,7 @@ export default function Products(): JSX.Element {
 		} catch (error) {
 			return toast.error('cant connect to the database now');
 		}
+		setLoading(false);
 	};
 	useEffect(() => {
 		async function getProducts() {
@@ -119,6 +121,7 @@ export default function Products(): JSX.Element {
 			try {
 				await firestore.collection('products').doc(id).delete();
 				toast.success('deleted');
+				setProducts(filtered);
 			} catch (e) {
 				return toast.error('failed to delete');
 				setProducts(products);
@@ -130,7 +133,7 @@ export default function Products(): JSX.Element {
 		if (productName.length < 5 || numberInstock.length <= 0)
 			return toast.error('please ente a valid product name and numberInStock');
 		if (priceCash.length <= 0 || priceBar.length <= 0 || priceSuperMkt.length <= 0)
-			return toast.error('please check that you inputed correctly');
+			return toast.error('please check that you inputed the correct price value');
 
 		const updatedProduct: updateProducts = {
 			name: productName,
@@ -152,6 +155,8 @@ export default function Products(): JSX.Element {
 	return (
 		<div className={styles.div}>
 			<Navigation></Navigation>
+			<h5 className={styles.welcome}> {products.length} products Avalaible</h5>
+
 			<Row className={styles.row}>
 				<Col lg={3} md={3} sm={6} className={styles.col}>
 					<Form className={styles.form}>
@@ -235,7 +240,7 @@ export default function Products(): JSX.Element {
 				</Col>
 				<Col lg={9} sm={6}>
 					<Table className="table-bordered table-sm">
-						<thead>
+						<thead className={styles.thead}>
 							<tr>
 								<th>S/N</th>
 								<th>Product Name</th>
@@ -247,7 +252,7 @@ export default function Products(): JSX.Element {
 								<th>Delete</th>
 							</tr>
 						</thead>
-						<tbody>
+						<tbody className={styles.tbody}>
 							{products.map((product, index) => (
 								<tr key={product.id}>
 									<td>{index + 1}</td>
