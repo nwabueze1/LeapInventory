@@ -1,0 +1,66 @@
+.div {
+}
+.listGroup {
+	padding-top: 40px;
+
+	padding-right: 5px;
+}
+.listItem {
+	color: rgb(29, 27, 27);
+	background-color: rgb(204, 204, 255);
+	font-weight: 600;
+}
+.Active {
+	color: rgb(15, 14, 14);
+	background-color: rgb(148, 148, 238);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: bold;
+}
+.listItem:hover {
+	background-color: rgb(52, 52, 204);
+	cursor: pointer;
+	color: white;
+}
+.header {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: bolder;
+	font-style: italic;
+	font-family: Georgia, 'Times New Roman', Times, serif;
+	color: white;
+}
+.cardhead {
+	background-color: rgb(6, 146, 240);
+}
+.cardbody {
+	background-color: rgb(118, 193, 243);
+	color: white;
+}
+.tablehead {
+	color: rgb(10, 0, 66);
+	font-weight: bold;
+}
+.teadcell {
+	background-color: white;
+}
+.teadcell:hover {
+	font-weight: bold;
+	color: rgb(246, 246, 246);
+	cursor: pointer;
+	background-color: rgb(103, 103, 146);
+}
+.stock {
+	font-weight: bold;
+	color: rgb(2, 1, 53);
+}
+.stock:hover {
+	background-color: white;
+	cursor: pointer;
+}
+.card {
+	padding-left: 10px;
+	padding-top: 40px;
+}

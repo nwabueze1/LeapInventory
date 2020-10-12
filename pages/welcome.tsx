@@ -2,8 +2,8 @@ import { useRouter } from 'next/router';
 import React, { useContext, useState } from 'react';
 import { Button, Container, Spinner } from 'react-bootstrap';
 import AuthGuard from '../components/Authentification';
-import Navigation from '../components/Navigation';
 import useFirebase from '../components/useFirebase';
+import CustomNavigation from '../components/customNavigation';
 
 export default function Welcome(): JSX.Element {
 	const [loading, setLoading] = useState(false);
@@ -21,13 +21,14 @@ export default function Welcome(): JSX.Element {
 	};
 
 	return (
-		<Container>
-			<Navigation></Navigation>
-			<br></br>
-			Sample Welcome page
-			<Button variant="danger" className="btn btn-md" onClick={handleLogOut}>
-				{!loading ? <span>LouOut</span> : <Spinner animation="border"></Spinner>}
-			</Button>
-		</Container>
+		<AuthGuard>
+			<Container>
+				<CustomNavigation></CustomNavigation>
+				<br></br>
+				<Button variant="danger" className="btn btn-md" onClick={handleLogOut}>
+					{!loading ? <span>LouOut</span> : <Spinner animation="border"></Spinner>}
+				</Button>
+			</Container>
+		</AuthGuard>
 	);
 }

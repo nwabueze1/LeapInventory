@@ -3,10 +3,9 @@ import { useRouter } from 'next/router';
 import React, { useState, useContext, useEffect } from 'react';
 import { Button, Col, Form, Row, Table, Spinner } from 'react-bootstrap';
 import { toast, ToastContainer } from 'react-toastify';
-import Navigation from '../components/Navigation';
 import useFireBase from '../components/useFirebase';
 import styles from '../styles/products.module.scss';
-import customers from './api/customers';
+import CustomNavigation from '../components/customNavigation';
 
 interface Products {
 	name: string;
@@ -99,7 +98,6 @@ export default function Products(): JSX.Element {
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				products.push(appObj as newProduct);
 			});
-
 			setProducts(products);
 		}
 		getProducts();
@@ -121,13 +119,11 @@ export default function Products(): JSX.Element {
 			try {
 				await firestore.collection('products').doc(id).delete();
 				toast.success('deleted');
-				setProducts(filtered);
 			} catch (e) {
+				setProducts(allProducts);
 				return toast.error('failed to delete');
-				setProducts(products);
 			}
 		}
-		console.log(id);
 	};
 	const handleUpdate = async (id: string) => {
 		if (productName.length < 5 || numberInstock.length <= 0)
@@ -154,14 +150,14 @@ export default function Products(): JSX.Element {
 	};
 	return (
 		<div className={styles.div}>
-			<Navigation></Navigation>
-			<h5 className={styles.welcome}> {products.length} products Avalaible</h5>
+			<CustomNavigation></CustomNavigation>
 
 			<Row className={styles.row}>
 				<Col lg={3} md={3} sm={6} className={styles.col}>
 					<Form className={styles.form}>
 						<Form.Group className={styles.input}>
 							<h5 className={styles.header}>Products</h5>
+							<hr className={styles.hr}></hr>
 							<Form.Label>Product BrandName</Form.Label>
 							<Form.Control
 								className={styles.control}
@@ -176,6 +172,7 @@ export default function Products(): JSX.Element {
 								className={styles.control}
 								type="text"
 								value={numberInstock}
+								disabled
 								onChange={(e) => setNumberInStock(e.target.value)}
 							></Form.Control>
 						</Form.Group>
@@ -210,7 +207,7 @@ export default function Products(): JSX.Element {
 							{
 								//check if an id exist to render the Edit button
 								id ? (
-									<Button onClick={() => handleUpdate(id)}>
+									<Button onClick={() => handleUpdate(id)} className={styles.update}>
 										{loading ? (
 											<Spinner animation="border" role="status">
 												<span className="sr-only">Loading...</span>
@@ -221,7 +218,7 @@ export default function Products(): JSX.Element {
 									</Button>
 								) : (
 									//if no id we ender the add Button
-									<Button className="btn-sm btn-info" onClick={addBrand}>
+									<Button className={styles.add} onClick={addBrand}>
 										{loading ? (
 											<Spinner animation="border" role="status">
 												<span className="sr-only">Loading...</span>
@@ -232,13 +229,14 @@ export default function Products(): JSX.Element {
 									</Button>
 								)
 							}
-							<Button className="btn-danger float-right mr-2" onClick={() => reset()}>
+							<Button className={styles.reset} onClick={() => reset()}>
 								Reset
 							</Button>
 						</Form.Group>
 					</Form>
 				</Col>
-				<Col lg={9} sm={6}>
+				<Col lg={9} sm={6} className={styles.col}>
+					<span className={styles.welcome}>Showing-{products.length}-Products</span>
 					<Table className="table-bordered table-sm">
 						<thead className={styles.thead}>
 							<tr>
@@ -262,15 +260,12 @@ export default function Products(): JSX.Element {
 									<td>{product.priceBar}</td>
 									<td>{product.priceSuperMkt}</td>
 									<td>
-										<Button className="btn-primary btn-sm" onClick={() => handleEdit(product as Products)}>
+										<Button className={styles.edit} onClick={() => handleEdit(product as Products)}>
 											Edit
 										</Button>
 									</td>
 									<td>
-										<Button
-											className="btn-secondary btn-danger btn-sm"
-											onClick={() => handleDelete(product._id as string)}
-										>
+										<Button className={styles.delete} onClick={() => handleDelete(product._id as string)}>
 											Delete
 										</Button>
 									</td>

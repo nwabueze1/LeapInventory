@@ -4,6 +4,7 @@ import styles from '../styles/sales.module.scss';
 import FirebaseContext from '../components/useFirebase';
 import { toast, ToastContainer } from 'react-toastify';
 import { useRouter } from 'next/router';
+import moment from 'moment';
 
 interface Customers {
 	id: string;
@@ -22,6 +23,7 @@ interface Products {
 	priceBar: string;
 	priceSuperMkt: string;
 	numberInStock: string;
+	numberOfEmpties: string;
 }
 interface Categories {
 	id: string;
@@ -50,6 +52,7 @@ export default function Sales(): JSX.Element {
 	const [customerType, setCustomerType] = useState('');
 	const [productName, setProductName] = useState('');
 	const [productPrice, setProductPrice] = useState('');
+	const [numberOfEmpties, setNumberOfEmpties] = useState('');
 	const [numberInStock, setNumberInStock] = useState('');
 	const [id, setId] = useState('');
 	const [quantity, setQuantity] = useState('');
@@ -98,7 +101,10 @@ export default function Sales(): JSX.Element {
 				setCategories(categories);
 			}
 			async function getSales() {
+				const date = moment().endOf('day').fromNow();
+
 				const salesRef = firestore.collection('sales');
+
 				const snapshot = await salesRef.get();
 
 				const sales: Array<Sales> = [];
@@ -124,7 +130,7 @@ export default function Sales(): JSX.Element {
 		setQuantity('');
 	};
 	const handleSubmit = async () => {
-		if (customerName.length < 5) return toast.error('customer Name can not be less tha 5 xters');
+		if (customerName.length < 5) return toast.error('customer Name can not be less than 5 xters');
 		if (customerType.length < 1) return toast.error('please select the customer type');
 		if (productName.length < 2) return toast.error('please select a valid product');
 		if (productPrice.length < 1 || productPrice.length > 10)
@@ -132,7 +138,7 @@ export default function Sales(): JSX.Element {
 
 		if (quantity.length < 1 || quantity.length > 4) return toast.error('Invalid quantity');
 
-		const date = new Date();
+		const date = moment().format('MMMM Do YYYY, h:mm:ss a');
 		const time = Date.now();
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		const sale: Sales = {
@@ -147,11 +153,17 @@ export default function Sales(): JSX.Element {
 		};
 
 		try {
+			if (+numberInStock <= 0) return toast.error('this product is out of stock');
+			if (+numberInStock - +quantity < 0)
+				return toast.error('the product seems to be out of stock, check the stock available for this product');
 			await firestore.collection('sales').add(sale);
 			await firestore
 				.collection('products')
 				.doc(id)
-				.update({ numberInStock: `${+numberInStock - +quantity}` });
+				.update({
+					numberInStock: `${+numberInStock - +quantity}`,
+					numberOfEmpties: `${!+numberOfEmpties ? 0 + +quantity : +numberOfEmpties + +quantity}`,
+				});
 			toast.success('Added successfully');
 
 			setSales([...sales, sale]);
@@ -228,6 +240,7 @@ export default function Sales(): JSX.Element {
 													setProductName(product.name);
 													setNumberInStock(product.numberInStock);
 													setId(product.id);
+													setNumberOfEmpties(product.numberOfEmpties);
 												}}
 											>
 												{product.name}
@@ -294,6 +307,9 @@ export default function Sales(): JSX.Element {
 							</Button>
 						</Form.Group>
 					</Form>
+					<Button onClick={() => router.back()} className={styles.goBack}>
+						Go Back
+					</Button>
 				</Col>
 				<Col md={8} lg={9} xl={9} className={styles.customerTable}>
 					<span className={styles.span}>DAILY SALES REPORT TABLE -{sales.length}-</span>
@@ -319,6 +335,7 @@ export default function Sales(): JSX.Element {
 									<td>{sale.productPrice}</td>
 									<td>{sale.quantity}</td>
 									<td>{sale.totalPrice}</td>
+									<td className={styles.date}>{sale.dateAdded}</td>
 								</tr>
 							))}
 						</tbody>
@@ -326,9 +343,6 @@ export default function Sales(): JSX.Element {
 				</Col>
 			</Row>
 			<ToastContainer></ToastContainer>
-			<Button onClick={() => router.back()} className={styles.goBack}>
-				Go Back
-			</Button>
 		</div>
 	);
 }

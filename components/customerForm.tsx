@@ -1,4 +1,4 @@
-import React, { useState, useContext, useRef, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import { Button, Card, Col, Form, Row, Spinner } from 'react-bootstrap';
 import useFirebase from './useFirebase';
 import { useRouter } from 'next/router';
@@ -11,29 +11,20 @@ export interface Customers {
 	address: string;
 	phone: string;
 	type?: 'Roaster' | 'One-off';
-	_id?: any;
+	_id?: string;
 }
 
-export default function CustomersForm() {
+export default function CustomersForm(): JSX.Element {
 	const [name, setName] = useState('');
 	const [email, setEmail] = useState('');
 	const [phone, setPhone] = useState('');
 	const [address, setAddress] = useState('');
 	const [loading, setLoading] = useState(false);
-	const inputRef: any = useRef(null);
 
 	const router = useRouter();
 	const app = useContext(useFirebase);
 	const firestore = app.firestore();
 
-	const updateCustomers = async (id: any, name: string, email: string, address: string, phone: string) => {
-		const update = await firestore.collection('customers').doc(id).update({
-			name: name,
-			email: email,
-			address: address,
-			phone: phone,
-		});
-	};
 	const AddCustomer = async () => {
 		if (name.length < 5) return toast.error('customer name must be grater that 5 characters');
 		if (email.length < 7) return toast.error('customer email must be grater that 7 characters');
@@ -53,7 +44,7 @@ export default function CustomersForm() {
 		};
 		try {
 			//call the backend to add the customer
-			const res = await firestore.collection('customers').add(newCustomer);
+			await firestore.collection('customers').add(newCustomer);
 			toast.success('customer added to the database');
 			setLoading(false);
 			router.push('/customers');
@@ -62,9 +53,7 @@ export default function CustomersForm() {
 		}
 		setLoading(false);
 	};
-	useEffect(() => {
-		inputRef.current.focus();
-	}, []);
+
 	return (
 		<Row className="justify-content-center p-5">
 			<Col lg={4}>
@@ -79,7 +68,6 @@ export default function CustomersForm() {
 									value={name}
 									onChange={(e) => setName(e.target.value)}
 									placeholder="enter full name"
-									ref={inputRef}
 								></Form.Control>
 							</Form.Group>
 							<Form.Group>

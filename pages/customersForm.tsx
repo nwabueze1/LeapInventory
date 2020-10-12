@@ -1,4 +1,4 @@
-import React, { useState, useContext, useRef, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import { Button, Card, Col, Form, Row, Spinner } from 'react-bootstrap';
 import useFirebase from '../components/useFirebase';
 import { useRouter } from 'next/router';
@@ -12,10 +12,10 @@ export interface Customers {
 	address: string;
 	phone: string;
 	type: 'Roaster' | 'One-off';
-	_id?: any;
+	_id?: unknown;
 }
 
-export default function CustomersForm() {
+export default function CustomersForm(): JSX.Element {
 	const [name, setName] = useState('');
 	const [email, setEmail] = useState('');
 	const [phone, setPhone] = useState('');
@@ -53,10 +53,6 @@ export default function CustomersForm() {
 			toast.error('Cant connect to database now');
 		}
 		setLoading(false);
-	};
-	const handleEdit = async (id: string) => {
-		const customers = await firestore.collection('customers').doc(id);
-		router.push(`customers/${id}`);
 	};
 
 	return (

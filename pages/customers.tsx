@@ -4,8 +4,8 @@ import useFirebase from '../components/useFirebase';
 import { useRouter } from 'next/router';
 import { toast, ToastContainer } from 'react-toastify';
 import AuthGuard from '../components/Authentification';
-import Navigation from '../components/Navigation';
 import styles from '../styles/table.module.scss';
+import CustomNavigation from '../components/customNavigation';
 
 interface Customers {
 	id: string;
@@ -172,9 +172,9 @@ function Customers(): JSX.Element {
 
 	return (
 		<AuthGuard>
+			<CustomNavigation></CustomNavigation>
 			<Container className={styles.Main}>
-				<Navigation></Navigation>
-				<Row className="mb-10 pb-12">
+				<Row className={styles.container}>
 					<Col lg={3} className="float-left">
 						<Card className={styles.card}>
 							<Card.Header>
@@ -195,7 +195,7 @@ function Customers(): JSX.Element {
 										<Form.Label>Email</Form.Label>
 										<Form.Control
 											type="text"
-											placeholder="email..."
+											placeholder="`email...`"
 											value={email}
 											onChange={(e) => setEmail(e.target.value)}
 										></Form.Control>

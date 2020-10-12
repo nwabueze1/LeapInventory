@@ -5,6 +5,7 @@ import React from 'react';
 // must be listed before other Firebase SDKs
 import firebase from 'firebase/app';
 // Add the Firebase services that you want to use
+
 import 'firebase/auth';
 import 'firebase/firestore';
 
@@ -12,4 +13,5 @@ import devConfig from '../devConfig.json';
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 
 const app = !firebase.apps.length ? firebase.initializeApp(devConfig) : firebase.app();
+
 export default React.createContext(app);
