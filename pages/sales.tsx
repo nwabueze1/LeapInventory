@@ -1,10 +1,14 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Button, Col, Dropdown, Form, Row, Table, ButtonGroup } from 'react-bootstrap';
+import { Button, Col, Dropdown, Form, Row, Table, ButtonGroup, Card } from 'react-bootstrap';
 import styles from '../styles/sales.module.scss';
 import FirebaseContext from '../components/useFirebase';
 import { toast, ToastContainer } from 'react-toastify';
 import { useRouter } from 'next/router';
 import moment from 'moment';
+import stock from '../styles/stock.module.scss';
+import Navigation from '../components/customNavigation';
+import { AccountBox, AttachMoney, CalendarToday, Category } from '@material-ui/icons';
+import AuthGuard from '../components/Authentification';
 
 interface Customers {
 	id: string;
@@ -137,7 +141,7 @@ export default function Sales(): JSX.Element {
 			return toast.error('Invalid price. please enter a valid product price');
 
 		if (quantity.length < 1 || quantity.length > 4) return toast.error('Invalid quantity');
-
+		if (+quantity <= 0) return toast.error('please enter a valid quantity');
 		const date = moment().format('MMMM Do YYYY, h:mm:ss a');
 		const time = Date.now();
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -167,6 +171,8 @@ export default function Sales(): JSX.Element {
 			toast.success('Added successfully');
 
 			setSales([...sales, sale]);
+			//here we can call the print reciept function to print the reciept
+
 			reset();
 		} catch (error) {
 			return toast.error('Cannot post sales. check you internet');
@@ -174,175 +180,206 @@ export default function Sales(): JSX.Element {
 	};
 
 	return (
-		<div className={styles.container}>
-			<Row className={styles.rowForm}>
-				<Col xs={12} sm={12} md={4} lg={3} xl={3}>
-					<Form className={styles.form}>
-						<span className={styles.span}>SALES</span>
-						<Form.Group>
-							<Form.Label className={styles.label}>Customers Name</Form.Label>
-							<span className="pl-5 ml-5">
-								<Dropdown as={ButtonGroup}>
-									<Dropdown.Toggle split variant="primary" id="dropdown-split-basic" />
+		<AuthGuard>
+			<div className={stock.div} style={{ height: '100%' }}>
+				<Navigation></Navigation>
+				<Row className={stock.row}>
+					<Col xs={12} sm={12} md={4} lg={3} xl={3}>
+						<Card className={stock.card}>
+							<Card.Header>
+								<h5 className={stock.header}>SALES</h5>
+							</Card.Header>
+							<Card.Body className={stock.cardbody}>
+								<Form className={styles.form}>
+									<Form.Group className={stock.formgroup}>
+										<Form.Label className={stock.label}>Customers Name</Form.Label>
+										<span className={styles.dropdown}>
+											<Dropdown as={ButtonGroup} variant="warning">
+												<Dropdown.Toggle split className={styles.dropdown} id="dropdown-split-basic" />
 
-									<Dropdown.Menu>
-										{customers.map((customer) => (
-											<Dropdown.Item
-												className={styles.dropdown}
-												key={customer.id}
-												onClick={() => {
-													setCustomerName(customer.name);
-													setCustomerType(customer.category);
-												}}
-											>
-												{customer.name}
-											</Dropdown.Item>
+												<Dropdown.Menu>
+													{customers.map((customer) => (
+														<Dropdown.Item
+															className={styles.dropdownMenu}
+															key={customer.id}
+															onClick={() => {
+																setCustomerName(customer.name);
+																setCustomerType(customer.category);
+															}}
+														>
+															{customer.name}
+														</Dropdown.Item>
+													))}
+												</Dropdown.Menu>
+											</Dropdown>
+										</span>
+										<Form.Control
+											type="text"
+											placeholder="Enter the name of customer"
+											className={stock.control}
+											value={customerName}
+											onChange={(e) => setCustomerName(e.target.value)}
+										/>
+									</Form.Group>
+									<Form.Group className={stock.formgroup}>
+										<Form.Label className={stock.label}>CustomerType</Form.Label>
+										<Form.Control
+											as="select"
+											className={stock.control}
+											value={customerType}
+											onChange={(e) => setCustomerType(e.target.value)}
+										>
+											{categories.map((category) => (
+												<option key={category.id}>{category.name}</option>
+											))}
+										</Form.Control>
+									</Form.Group>
+									<Form.Group className={stock.formgroup}>
+										<Form.Label className={stock.label}>ProductName</Form.Label>
+										<span className={styles.dropdown}>
+											<Dropdown as={ButtonGroup}>
+												<Dropdown.Toggle split className={styles.dropdown} id="dropdown-split-basic" />
+
+												<Dropdown.Menu>
+													{products.map((product) => (
+														<Dropdown.Item
+															className={styles.dropdownMenu}
+															key={product.id}
+															onClick={() => {
+																setPriceCash(product.priceCash);
+																setPriceBar(product.priceBar);
+																setPriceSuperMkt(product.priceSuperMkt);
+																setProductName(product.name);
+																setNumberInStock(product.numberInStock);
+																setId(product.id);
+																setNumberOfEmpties(product.numberOfEmpties);
+															}}
+														>
+															{product.name}
+														</Dropdown.Item>
+													))}
+												</Dropdown.Menu>
+											</Dropdown>
+										</span>
+										<Form.Control
+											as="select"
+											value={productName}
+											disabled
+											onChange={(e) => {
+												setProductName(e.target.value);
+											}}
+											className={stock.control}
+										>
+											<option key={1} />
+											{products.map((product) => (
+												<option key={product.id}>{product.name}</option>
+											))}
+										</Form.Control>
+									</Form.Group>
+
+									<Form.Group className={stock.formgroup}>
+										<Form.Label className={stock.label}>ProductPrice</Form.Label>
+										<Form.Control
+											as="select"
+											value={productPrice}
+											onChange={(e) => setProductPrice(e.target.value)}
+											placeholder="enter price"
+											className={stock.control}
+										>
+											<option> please select any 1.Cash Price, 2.Bar 3.SuperMkt</option>
+											<option>{priceCash}</option>
+											<option>{priceBar}</option>
+											<option>{priceSuperMkt}</option>
+										</Form.Control>
+									</Form.Group>
+									<Form.Group className={stock.formgroup}>
+										<Form.Label className={stock.label}>Quantity</Form.Label>
+										<Form.Control
+											type="text"
+											placeholder="Enter Quantity"
+											value={quantity}
+											onChange={(e) => setQuantity(e.target.value)}
+											className={stock.control}
+										/>
+									</Form.Group>
+									<Form.Group className={stock.formgroup}>
+										<Form.Label className={stock.label}>TotalPrice</Form.Label>
+										<Form.Control
+											readOnly
+											type="text"
+											placeholder="totalPrice"
+											value={+quantity * +productPrice}
+											className={stock.control}
+										/>
+									</Form.Group>
+									<Form.Group>
+										<Button className="btn-sm btn-secondary" onClick={handleSubmit}>
+											Submit
+										</Button>
+										<Button className="btn-sm btn-danger float-right" onClick={() => reset()}>
+											Reset
+										</Button>
+									</Form.Group>
+								</Form>
+							</Card.Body>
+						</Card>
+					</Col>
+					<Col md={8} lg={9} xl={9} className={styles.customerTable}>
+						<Card className={stock.card}>
+							<Card.Header className={stock.listheader}>
+								<span className={stock.header}>DAILY SALES REPORT TABLE -{sales.length}-</span>
+							</Card.Header>
+							<Card.Body className={stock.cardbody}>
+								<Table className="table-sm table-bordered" bordered={true}>
+									<thead className={stock.tablehead}>
+										<tr>
+											<td>S/N</td>
+											<td className={stock.tablecell}>
+												<span className={stock.icon}>
+													<AccountBox></AccountBox>
+												</span>
+											</td>
+											<td className={stock.tablecell}>
+												<span className={stock.icon}>
+													<Category color="primary"></Category>
+												</span>
+											</td>
+											<td className={stock.tablecell}>Product Name</td>
+											<td className={stock.tablecell}>
+												<span className={styles.icon}>
+													<AttachMoney color="action"></AttachMoney>
+												</span>
+											</td>
+											<td className={stock.tablecell}>Quantity</td>
+											<td className={stock.tablecell}>Total Price</td>
+											<td>
+												<span className={stock.icon}>
+													<CalendarToday color="secondary"></CalendarToday>
+												</span>
+											</td>
+										</tr>
+									</thead>
+									<tbody>
+										{sales.map((sale, index) => (
+											<tr key={sale.id}>
+												<td>{index + 1}</td>
+												<td>{sale.customerName}</td>
+												<td>{sale.customerType}</td>
+												<td>{sale.productName}</td>
+												<td>{sale.productPrice}</td>
+												<td>{sale.quantity}</td>
+												<td>{sale.totalPrice}</td>
+												<td className={styles.date}>{sale.dateAdded}</td>
+											</tr>
 										))}
-									</Dropdown.Menu>
-								</Dropdown>
-							</span>
-							<Form.Control
-								type="text"
-								placeholder="Enter the name of customer"
-								className={styles.control}
-								value={customerName}
-								onChange={(e) => setCustomerName(e.target.value)}
-							></Form.Control>
-						</Form.Group>
-						<Form.Group>
-							<Form.Label className={styles.label}>CustomerType</Form.Label>
-							<Form.Control
-								as="select"
-								className={styles.control}
-								value={customerType}
-								onChange={(e) => setCustomerType(e.target.value)}
-							>
-								{categories.map((category) => (
-									<option key={category.id}>{category.name}</option>
-								))}
-							</Form.Control>
-						</Form.Group>
-						<Form.Group>
-							<Form.Label className={styles.label}>ProductName</Form.Label>
-							<span className={styles.productNm}>
-								<Dropdown as={ButtonGroup}>
-									<Dropdown.Toggle split variant="primary" id="dropdown-split-basic" />
-
-									<Dropdown.Menu>
-										{products.map((product) => (
-											<Dropdown.Item
-												className={styles.dropdown}
-												key={product.id}
-												onClick={() => {
-													setPriceCash(product.priceCash);
-													setPriceBar(product.priceBar);
-													setPriceSuperMkt(product.priceSuperMkt);
-													setProductName(product.name);
-													setNumberInStock(product.numberInStock);
-													setId(product.id);
-													setNumberOfEmpties(product.numberOfEmpties);
-												}}
-											>
-												{product.name}
-											</Dropdown.Item>
-										))}
-									</Dropdown.Menu>
-								</Dropdown>
-							</span>
-							<Form.Control
-								as="select"
-								value={productName}
-								onChange={(e) => {
-									setProductName(e.target.value);
-								}}
-								className={styles.control}
-							>
-								<option key={1}></option>
-								{products.map((product) => (
-									<option key={product.id}>{product.name}</option>
-								))}
-							</Form.Control>
-						</Form.Group>
-
-						<Form.Group>
-							<Form.Label className={styles.label}>ProductPrice</Form.Label>
-							<Form.Control
-								as="select"
-								value={productPrice}
-								onChange={(e) => setProductPrice(e.target.value)}
-								placeholder="enter price"
-							>
-								<option> please select any 1.Cash Price, 2.Bar 3.SuperMkt</option>
-								<option>{priceCash}</option>
-								<option>{priceBar}</option>
-								<option>{priceSuperMkt}</option>
-							</Form.Control>
-						</Form.Group>
-						<Form.Group>
-							<Form.Label className={styles.label}>Quantity</Form.Label>
-							<Form.Control
-								type="text"
-								placeholder="Enter Quantity"
-								value={quantity}
-								onChange={(e) => setQuantity(e.target.value)}
-								className={styles.control}
-							></Form.Control>
-						</Form.Group>
-						<Form.Group>
-							<Form.Label className={styles.label}>TotalPrice</Form.Label>
-							<Form.Control
-								readOnly
-								type="text"
-								placeholder="totalPrice"
-								value={+quantity * +productPrice}
-								className={styles.total}
-							></Form.Control>
-						</Form.Group>
-						<Form.Group>
-							<Button className={styles.button} onClick={handleSubmit}>
-								Submit
-							</Button>
-							<Button className={styles.reset} onClick={() => reset()}>
-								Reset
-							</Button>
-						</Form.Group>
-					</Form>
-					<Button onClick={() => router.back()} className={styles.goBack}>
-						Go Back
-					</Button>
-				</Col>
-				<Col md={8} lg={9} xl={9} className={styles.customerTable}>
-					<span className={styles.span}>DAILY SALES REPORT TABLE -{sales.length}-</span>
-					<Table className="table-bordered table-sm pt-0 mt-0 pb-0 mb-0">
-						<thead>
-							<tr>
-								<th>S/N</th>
-								<th>Name</th>
-								<th>Customer Type</th>
-								<th>Product Name</th>
-								<th>Product Price</th>
-								<th>Quantity</th>
-								<th>Total Price</th>
-							</tr>
-						</thead>
-						<tbody>
-							{sales.map((sale, index) => (
-								<tr key={sale.id}>
-									<td>{index + 1}</td>
-									<td>{sale.customerName}</td>
-									<td>{sale.customerType}</td>
-									<td>{sale.productName}</td>
-									<td>{sale.productPrice}</td>
-									<td>{sale.quantity}</td>
-									<td>{sale.totalPrice}</td>
-									<td className={styles.date}>{sale.dateAdded}</td>
-								</tr>
-							))}
-						</tbody>
-					</Table>
-				</Col>
-			</Row>
-			<ToastContainer></ToastContainer>
-		</div>
+									</tbody>
+								</Table>
+							</Card.Body>
+						</Card>
+					</Col>
+				</Row>
+				<ToastContainer />
+			</div>
+		</AuthGuard>
 	);
 }

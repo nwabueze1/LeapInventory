@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import { toast, ToastContainer } from 'react-toastify';
+import AuthGuard from '../components/Authentification';
 
 import useFirebase from '../components/useFirebase';
 
@@ -27,15 +28,17 @@ export default function addGenres(): JSX.Element {
 		}
 	};
 	return (
-		<div>
-			<Form>
-				<Form.Group>
-					<Form.Label>Categories</Form.Label>
-					<Form.Control type="text" value={categories} onChange={(e) => setCategories(e.target.value)}></Form.Control>
-					<Button onClick={handleCategory}>Submit</Button>
-				</Form.Group>
-			</Form>
-			<ToastContainer></ToastContainer>
-		</div>
+		<AuthGuard>
+			<div>
+				<Form>
+					<Form.Group>
+						<Form.Label>Categories</Form.Label>
+						<Form.Control type="text" value={categories} onChange={(e) => setCategories(e.target.value)}></Form.Control>
+						<Button onClick={handleCategory}>Submit</Button>
+					</Form.Group>
+				</Form>
+				<ToastContainer></ToastContainer>
+			</div>
+		</AuthGuard>
 	);
 }

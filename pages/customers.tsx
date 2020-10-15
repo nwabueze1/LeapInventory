@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Button, Card, Col, Container, Form, FormGroup, Row, Spinner, Table } from 'react-bootstrap';
+import { Button, Card, Col, Form, FormGroup, Row, Spinner, Table } from 'react-bootstrap';
 import useFirebase from '../components/useFirebase';
 import { useRouter } from 'next/router';
 import { toast, ToastContainer } from 'react-toastify';
-import AuthGuard from '../components/Authentification';
 import styles from '../styles/table.module.scss';
-import CustomNavigation from '../components/customNavigation';
+import stock from '../styles/stock.module.scss';
+import DeleteIcon from '@material-ui/icons/Delete';
+import { AccountBox, Category, ContactPhone, Email, LocationOn, Visibility } from '@material-ui/icons';
+import Navigation from '../components/customNavigation';
+import AuthGuard from '../components/Authentification';
 
 interface Customers {
 	id: string;
@@ -172,59 +175,68 @@ function Customers(): JSX.Element {
 
 	return (
 		<AuthGuard>
-			<CustomNavigation></CustomNavigation>
-			<Container className={styles.Main}>
-				<Row className={styles.container}>
+			<div className={stock.div}>
+				<Navigation></Navigation>
+				<Row className={stock.row}>
 					<Col lg={3} className="float-left">
-						<Card className={styles.card}>
+						<Card className={stock.card}>
 							<Card.Header>
-								<h5>Edit Customers</h5>
+								{id ? <h5 className={stock.header}>Edit Customers</h5> : <h5 className={stock.header}>New Customer</h5>}
 							</Card.Header>
 							<Card.Body>
 								<Form>
-									<FormGroup>
-										<Form.Label>Name</Form.Label>
+									<FormGroup className={stock.formgroup}>
+										<Form.Label className={stock.label}>Name</Form.Label>
 										<Form.Control
 											type="text"
 											placeholder="name..."
 											value={name}
 											onChange={(e) => setName(e.target.value)}
+											className={stock.control}
 										></Form.Control>
 									</FormGroup>
-									<FormGroup>
-										<Form.Label>Email</Form.Label>
+									<FormGroup className={stock.formgroup}>
+										<Form.Label className={stock.label}>Email</Form.Label>
 										<Form.Control
 											type="text"
-											placeholder="`email...`"
+											placeholder="email..."
 											value={email}
+											className={stock.control}
 											onChange={(e) => setEmail(e.target.value)}
 										></Form.Control>
 									</FormGroup>
-									<Form.Group>
-										<Form.Label>Category</Form.Label>
-										<Form.Control as="select" value={category} onChange={(e) => setCategory(e.target.value)}>
+									<Form.Group className={stock.formgroup}>
+										<Form.Label className={stock.label}>Category</Form.Label>
+										<Form.Control
+											as="select"
+											value={category}
+											onChange={(e) => setCategory(e.target.value)}
+											className={stock.control}
+										>
 											<option></option>
 											{categories.map((cate) => (
 												<option key={cate.id}>{cate.name}</option>
 											))}
 										</Form.Control>
 									</Form.Group>
-									<FormGroup>
-										<Form.Label>Address</Form.Label>
+									<FormGroup className={stock.formgroup}>
+										<Form.Label className={stock.label}>Address</Form.Label>
 										<Form.Control
 											type="text"
 											placeholder="address..."
 											value={address}
 											onChange={(e) => setAddress(e.target.value)}
+											className={stock.control}
 										></Form.Control>
 									</FormGroup>
-									<FormGroup>
-										<Form.Label>Phone</Form.Label>
+									<FormGroup className={stock.formgroup}>
+										<Form.Label className={stock.label}>Phone</Form.Label>
 										<Form.Control
 											type="text"
 											placeholder="contact..."
 											value={phone}
 											onChange={(e) => setPhone(e.target.value)}
+											className={stock.control}
 										></Form.Control>
 									</FormGroup>
 									<Form.Group>
@@ -234,7 +246,7 @@ function Customers(): JSX.Element {
 												{loading ? (
 													<Spinner animation="border" variant="ligth" />
 												) : (
-													<span className={styles.text}>Insert</span>
+													<span className={stock.text}>Insert</span>
 												)}
 											</Button>
 										) : (
@@ -250,7 +262,7 @@ function Customers(): JSX.Element {
 												)}
 											</Button>
 										)}
-										<Button className="btn-danger float-right" onClick={() => reset()}>
+										<Button className="btn-danger float-right btn-sm" onClick={() => reset()}>
 											Reset
 										</Button>
 									</Form.Group>
@@ -260,7 +272,7 @@ function Customers(): JSX.Element {
 					</Col>
 
 					<Col lg={9} className="float-right">
-						<Card className={styles.container}>
+						<Card className={stock.card}>
 							<Card.Header>
 								{customers.length === 0 ? (
 									//conditionally render the number of cutomers if no custmers exists in the database we render the firstone
@@ -270,7 +282,7 @@ function Customers(): JSX.Element {
 									<span className={styles.Table}>found {customers.length} Customers </span>
 								)}
 								<Button
-									className="btn-info float-right"
+									className={stock.postsales}
 									onClick={() => {
 										router.push('/sales');
 									}}
@@ -278,29 +290,50 @@ function Customers(): JSX.Element {
 									Post sales
 								</Button>
 							</Card.Header>
-							<Card.Body>
+							<Card.Body className={stock.cardbody}>
 								<Table className="table-bordered table-sm ">
 									<thead>
 										<tr>
 											<th>S/N</th>
-											<th className={styles.thead}>Name</th>
-											<th className={styles.thead}>Email</th>
-											<th className={styles.thead}>category</th>
-											<th className={styles.thead}>address</th>
-											<th className={styles.thead}>phone</th>
-											<th>Delete</th>
-											<th>Edit</th>
+											<th className={styles.teadcell}>
+												<span className={stock.icon}>
+													<AccountBox></AccountBox>
+												</span>
+											</th>
+											<th className={styles.teadcell}>
+												<span className={stock.icon}>
+													<Email color="secondary"></Email>
+												</span>
+											</th>
+											<th className={styles.teadcell}>
+												<span className={stock.icon}>
+													<Category color="primary"></Category>
+												</span>
+											</th>
+											<th className={styles.teadcell}>
+												<span className={stock.icon}>
+													<LocationOn color="action"></LocationOn>
+												</span>
+											</th>
+											<th className={styles.teadcell}>
+												{' '}
+												<span className={stock.icon}>
+													<ContactPhone color="inherit"></ContactPhone>
+												</span>
+											</th>
+											<th></th>
+											<th></th>
 										</tr>
 									</thead>
 									<tbody>
 										{customers.map((customer: Customers, index: number) => (
 											<tr key={customer.id}>
-												<td className={styles.thead}>{index + 1}</td>
-												<td className={styles.thead}>{customer.name}</td>
-												<td className={styles.thead}>{customer.email}</td>
-												<td className={styles.thead}>{customer.category}</td>
-												<td className={styles.thead}>{customer.address}</td>
-												<td className={styles.thead}>{customer.phone}</td>
+												<td className={styles.teadcell}>{index + 1}</td>
+												<td className={styles.teadcell}>{customer.name}</td>
+												<td className={styles.teadcell}>{customer.email}</td>
+												<td className={styles.teadcell}>{customer.category}</td>
+												<td className={styles.teadcell}>{customer.address}</td>
+												<td className={styles.teadcell}>{customer.phone}</td>
 												<td>
 													<Button
 														className="btn-sm btn-primary"
@@ -308,7 +341,7 @@ function Customers(): JSX.Element {
 															handleEdit(customer as EditCustomers);
 														}}
 													>
-														Edit
+														<Visibility></Visibility>
 													</Button>
 												</td>
 												<td>
@@ -318,7 +351,7 @@ function Customers(): JSX.Element {
 															handleDelete(customer._id as string);
 														}}
 													>
-														Delete
+														<DeleteIcon></DeleteIcon>
 													</Button>
 												</td>
 											</tr>
@@ -330,7 +363,7 @@ function Customers(): JSX.Element {
 						</Card>
 					</Col>
 				</Row>
-			</Container>
+			</div>
 		</AuthGuard>
 	);
 }

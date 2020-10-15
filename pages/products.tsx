@@ -1,11 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useRouter } from 'next/router';
 import React, { useState, useContext, useEffect } from 'react';
-import { Button, Col, Form, Row, Table, Spinner } from 'react-bootstrap';
+import { useRouter } from 'next/router';
+import { makeStyles, useTheme, Theme, createStyles } from '@material-ui/core/styles';
+import { Button, Col, Form, Row, Table, Spinner, Card } from 'react-bootstrap';
 import { toast, ToastContainer } from 'react-toastify';
 import useFireBase from '../components/useFirebase';
 import styles from '../styles/products.module.scss';
-import CustomNavigation from '../components/customNavigation';
+import VisibilityIcon from '@material-ui/icons/Visibility';
+import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
+import AddBoxSharpIcon from '@material-ui/icons/AddBoxSharp';
+import UpdateIcon from '@material-ui/icons/Update';
+import stock from '../styles/stock.module.scss';
+import Navigation from '../components/customNavigation';
+import AuthGuard from '../components/Authentification';
 
 interface Products {
 	name: string;
@@ -33,6 +40,7 @@ interface newProduct {
 	type: 'Roaster' | 'One-off';
 	_id?: string;
 }
+
 export default function Products(): JSX.Element {
 	const [products, setProducts] = useState<Array<newProduct>>([]);
 
@@ -149,133 +157,160 @@ export default function Products(): JSX.Element {
 		} catch (error) {}
 	};
 	return (
-		<div className={styles.div}>
-			<CustomNavigation></CustomNavigation>
+		<AuthGuard>
+			<div className={stock.div}>
+				<Navigation></Navigation>
 
-			<Row className={styles.row}>
-				<Col lg={3} md={3} sm={6} className={styles.col}>
-					<Form className={styles.form}>
-						<Form.Group className={styles.input}>
-							<h5 className={styles.header}>Products</h5>
-							<hr className={styles.hr}></hr>
-							<Form.Label>Product BrandName</Form.Label>
-							<Form.Control
-								className={styles.control}
-								type="text"
-								value={productName}
-								onChange={(e) => setProductName(e.target.value)}
-							></Form.Control>
-						</Form.Group>
-						<Form.Group className={styles.input}>
-							<Form.Label>NumberInStock</Form.Label>
-							<Form.Control
-								className={styles.control}
-								type="text"
-								value={numberInstock}
-								disabled
-								onChange={(e) => setNumberInStock(e.target.value)}
-							></Form.Control>
-						</Form.Group>
-						<Form.Group className={styles.input}>
-							<Form.Label>Cash Price </Form.Label>
-							<Form.Control
-								className={styles.control}
-								type="text"
-								value={priceCash}
-								onChange={(e) => setPriceCash(e.target.value)}
-							></Form.Control>
-						</Form.Group>
-						<Form.Group className={styles.input}>
-							<Form.Label>Bar Price</Form.Label>
-							<Form.Control
-								className={styles.control}
-								type="text"
-								value={priceBar}
-								onChange={(e) => setPriceBar(e.target.value)}
-							></Form.Control>
-						</Form.Group>
-						<Form.Group className={styles.input}>
-							<Form.Label>Price SuperMarket</Form.Label>
-							<Form.Control
-								className={styles.control}
-								type="text"
-								value={priceSuperMkt}
-								onChange={(e) => setPriceSuperMkt(e.target.value)}
-							></Form.Control>
-						</Form.Group>
-						<Form.Group className={styles.button}>
-							{
-								//check if an id exist to render the Edit button
-								id ? (
-									<Button onClick={() => handleUpdate(id)} className={styles.update}>
-										{loading ? (
-											<Spinner animation="border" role="status">
-												<span className="sr-only">Loading...</span>
-											</Spinner>
+				<Row className={stock.row}>
+					<Col lg={3} md={3} sm={6} className={styles.col}>
+						<Card className={stock.card}>
+							<Card.Header>
+								{id ? <h5 className={stock.header}>Edit Product</h5> : <h5 className={stock.header}>New Product</h5>}
+							</Card.Header>
+							<Card.Body className={styles.cardbody}>
+								<Form>
+									<Form.Group className={stock.formgroup}>
+										<Form.Label className={stock.label}>Product BrandName</Form.Label>
+										<Form.Control
+											className={stock.control}
+											type="text"
+											value={productName}
+											onChange={(e) => setProductName(e.target.value)}
+										/>
+									</Form.Group>
+									<Form.Group className={stock.formgroup}>
+										<Form.Label className={stock.label}>NumberInStock</Form.Label>
+										{id ? (
+											<Form.Control
+												className={stock.control}
+												type="text"
+												value={numberInstock}
+												disabled
+												onChange={(e) => setNumberInStock(e.target.value)}
+											/>
 										) : (
-											<span>update</span>
+											<Form.Control
+												className={stock.control}
+												type="text"
+												value={numberInstock}
+												onChange={(e) => setNumberInStock(e.target.value)}
+											/>
 										)}
-									</Button>
-								) : (
-									//if no id we ender the add Button
-									<Button className={styles.add} onClick={addBrand}>
-										{loading ? (
-											<Spinner animation="border" role="status">
-												<span className="sr-only">Loading...</span>
-											</Spinner>
-										) : (
-											<span>Add</span>
-										)}
-									</Button>
-								)
-							}
-							<Button className={styles.reset} onClick={() => reset()}>
-								Reset
-							</Button>
-						</Form.Group>
-					</Form>
-				</Col>
-				<Col lg={9} sm={6} className={styles.col}>
-					<span className={styles.welcome}>Showing-{products.length}-Products</span>
-					<Table className="table-bordered table-sm">
-						<thead className={styles.thead}>
-							<tr>
-								<th>S/N</th>
-								<th>Product Name</th>
-								<th>Number In Stock</th>
-								<th> Price Cash (#)</th>
-								<th>Price Bar (#)</th>
-								<th>Price SuperMkt (#)</th>
-								<th>Edit</th>
-								<th>Delete</th>
-							</tr>
-						</thead>
-						<tbody className={styles.tbody}>
-							{products.map((product, index) => (
-								<tr key={product.id}>
-									<td>{index + 1}</td>
-									<td>{product.name}</td>
-									<td>{product.numberInStock} </td>
-									<td>{product.priceCash}</td>
-									<td>{product.priceBar}</td>
-									<td>{product.priceSuperMkt}</td>
-									<td>
-										<Button className={styles.edit} onClick={() => handleEdit(product as Products)}>
-											Edit
+									</Form.Group>
+									<Form.Group className={stock.formgroup}>
+										<Form.Label className={stock.label}>Cash Price </Form.Label>
+										<Form.Control
+											className={stock.control}
+											type="text"
+											value={priceCash}
+											onChange={(e) => setPriceCash(e.target.value)}
+										/>
+									</Form.Group>
+									<Form.Group className={stock.formgroup}>
+										<Form.Label className={stock.label}>Bar Price</Form.Label>
+										<Form.Control
+											className={stock.control}
+											type="text"
+											value={priceBar}
+											onChange={(e) => setPriceBar(e.target.value)}
+										/>
+									</Form.Group>
+									<Form.Group className={stock.formgroup}>
+										<Form.Label className={stock.label}>Price SuperMarket</Form.Label>
+										<Form.Control
+											className={stock.control}
+											type="text"
+											value={priceSuperMkt}
+											onChange={(e) => setPriceSuperMkt(e.target.value)}
+										/>
+									</Form.Group>
+									<Form.Group className={styles.button}>
+										{
+											//check if an id exist to render the Edit button
+											id ? (
+												<Button onClick={() => handleUpdate(id)} className=" btn-sm btn-secondary">
+													{loading ? (
+														<Spinner animation="border" role="status">
+															<span className="sr-only">Loading...</span>
+														</Spinner>
+													) : (
+														<UpdateIcon />
+													)}
+												</Button>
+											) : (
+												//if no id we ender the add Button
+												<Button className=" btn-sm btn-primary" onClick={addBrand}>
+													{loading ? (
+														<Spinner animation="border" role="status">
+															<span className="sr-only">Loading...</span>
+														</Spinner>
+													) : (
+														<AddBoxSharpIcon />
+													)}
+												</Button>
+											)
+										}
+										<Button className=" btn-sm btn-danger float-right" onClick={() => reset()}>
+											Reset
 										</Button>
-									</td>
-									<td>
-										<Button className={styles.delete} onClick={() => handleDelete(product._id as string)}>
-											Delete
-										</Button>
-									</td>
-								</tr>
-							))}
-						</tbody>
-					</Table>
-				</Col>
-			</Row>
-			<ToastContainer></ToastContainer>
-		</div>
+									</Form.Group>
+								</Form>
+							</Card.Body>
+						</Card>
+					</Col>
+					<Col lg={9} sm={6}>
+						<Card className={stock.card}>
+							<Card.Header>
+								<span className={stock.header}>Showing-{products.length}-Products</span>
+							</Card.Header>
+							<Card.Body className={stock.cardbody}>
+								<Table className="table-bordered table-sm">
+									<thead className={stock.tablehead}>
+										<tr>
+											<th>S/N</th>
+											<th className={stock.teadcell}>Product Name</th>
+											<th className={stock.teadcell}>Number In Stock</th>
+											<th className={stock.teadcell}> Price Cash (#)</th>
+											<th className={stock.teadcell}>Price Bar (#)</th>
+											<th className={stock.teadcell}>Price SuperMkt (#)</th>
+											<th></th>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody className={styles.tbody}>
+										{products.map((product, index) => (
+											<tr key={product.id}>
+												<td className={stock.teadcell}>{index + 1}</td>
+												<td className={stock.teadcell}>{product.name}</td>
+												<td className={stock.teadcell}>{product.numberInStock} </td>
+												<td className={stock.teadcell}>{product.priceCash}</td>
+												<td className={stock.teadcell}>{product.priceBar}</td>
+												<td className={stock.teadcell}>{product.priceSuperMkt}</td>
+												<td>
+													<VisibilityIcon
+														color="primary"
+														className={styles.edit}
+														onClick={() => handleEdit(product as Products)}
+													/>
+												</td>
+												<td>
+													<DeleteForeverIcon
+														className={styles.edit}
+														color="secondary"
+														onClick={() => handleDelete(product._id as string)}
+													/>
+												</td>
+											</tr>
+										))}
+									</tbody>
+								</Table>
+							</Card.Body>
+							<Card.Footer>Herwe I will add the pagination componenet</Card.Footer>
+						</Card>
+					</Col>
+				</Row>
+				<ToastContainer />
+			</div>
+		</AuthGuard>
 	);
 }

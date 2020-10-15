@@ -4,6 +4,7 @@ import { Button, Col, Container, Form, Row, Spinner } from 'react-bootstrap';
 import { toast, ToastContainer } from 'react-toastify';
 import useFirebase from '../components/useFirebase';
 import styles from '../styles/cardHeader.module.scss';
+import stock from '../styles/stock.module.scss';
 
 interface HomeProp {
 	children: Array<JSX.Element> | JSX.Element;
@@ -19,17 +20,19 @@ export default function Home({ children }: HomeProp): JSX.Element {
 	const router = useRouter();
 
 	const handleSubmit = async () => {
-		if (email.length < 8) return toast.error('please enter a valid email, must be min 8 xters...');
-		if (password.length < 5) return toast.error('please enter a valid password');
-		setLoading(true);
+		if (email.length < 8 || email.length > 50) return toast.error('please enter a valid email, must be min 8 xters...');
+		if (!email.includes('@gmail.com')) return toast.error('Email is not valid');
+		if (password.length < 5 || password.length > 50) return toast.error('please enter a valid password');
+
 		try {
+			setLoading(true);
 			await app.signInWithEmailAndPassword(email, password);
 			toast.success('Signed in successfully');
 
 			router.push('/welcome');
 		} catch (error) {
 			setLoading(false);
-			return toast.error('failed to login.. Seems you device is offline');
+			return toast.error('login failed');
 		}
 		setLoading(false);
 	};
@@ -39,12 +42,11 @@ export default function Home({ children }: HomeProp): JSX.Element {
 				<Row>
 					<Col lg={12} md={12} sm={5}>
 						<h4 className={styles.head}>LEAP INVENTORY</h4>
-						<hr className={styles.hr}></hr>
 						<Form className={styles.form}>
-							<Form.Group className={styles.Group}>
-								<Form.Label>EMAIL</Form.Label>
+							<Form.Group className={stock.logingroup}>
+								<Form.Label className={stock.label}>EMAIL</Form.Label>
 								<Form.Control
-									className={styles.control}
+									className={stock.control}
 									type="email"
 									autoFocus
 									value={email}
@@ -52,11 +54,11 @@ export default function Home({ children }: HomeProp): JSX.Element {
 									placeholder="enter your email..."
 								></Form.Control>
 							</Form.Group>
-							<Form.Group className={styles.Group}>
-								<Form.Label>PASSWORD</Form.Label>
+							<Form.Group className={stock.logingroup}>
+								<Form.Label className={stock.label}>PASSWORD</Form.Label>
 								<span></span>
 								<Form.Control
-									className={styles.control}
+									className={stock.control}
 									type="password"
 									value={password}
 									onChange={(e) => setPassword(e.target.value)}
