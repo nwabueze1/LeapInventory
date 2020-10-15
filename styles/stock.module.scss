@@ -1,66 +1,104 @@
-.div {
-}
-.listGroup {
-	padding-top: 40px;
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap');
 
-	padding-right: 5px;
+.div {
+	height: 100vh;
+	background-color: #fcf6f5ff;
+	backdrop-filter: grayscale(0.5) opacity(0.8);
+	font-size: 13px;
+	font-family: 'DM Sans', sans-serif;
 }
-.listItem {
-	color: rgb(29, 27, 27);
-	background-color: rgb(204, 204, 255);
-	font-weight: 600;
+.row {
+	padding: 20px;
+	padding-left: 25px;
 }
-.Active {
-	color: rgb(15, 14, 14);
-	background-color: rgb(148, 148, 238);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-weight: bold;
+.card {
+	background-color: #f2edd7ff;
+	color: rgb(7, 44, 51);
 }
-.listItem:hover {
-	background-color: rgb(52, 52, 204);
-	cursor: pointer;
-	color: white;
+.cardForm {
+	background-color: #f2edd7ff;
+	color: rgb(7, 44, 51);
 }
 .header {
 	display: flex;
-	align-items: center;
 	justify-content: center;
-	font-weight: bolder;
-	font-style: italic;
-	font-family: Georgia, 'Times New Roman', Times, serif;
-	color: white;
-}
-.cardhead {
-	background-color: rgb(6, 146, 240);
-}
-.cardbody {
-	background-color: rgb(118, 193, 243);
-	color: white;
-}
-.tablehead {
-	color: rgb(10, 0, 66);
+	align-items: center;
 	font-weight: bold;
 }
-.teadcell {
-	background-color: white;
+.listGroup {
+	background-color: rgb(187, 183, 163);
+	color: rgb(7, 44, 51);
 }
-.teadcell:hover {
+.listheader {
+	display: flex;
+	justify-content: center;
+	align-items: center;
 	font-weight: bold;
-	color: rgb(246, 246, 246);
+}
+.listItem {
+	background-color: #f2edd7ff;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-weight: 400;
 	cursor: pointer;
-	background-color: rgb(103, 103, 146);
+	transition: opacity 0.25s ease-out;
 }
-.stock {
-	font-weight: bold;
-	color: rgb(2, 1, 53);
+.listItem:hover {
+	background-color: rgb(219, 219, 215);
+	color: rgb(7, 44, 51);
+	transition: opacity 0.25s ease-out;
 }
-.stock:hover {
-	background-color: white;
+.formgroup {
+	padding-bottom: 7px;
+	margin-bottom: 0;
+}
+.logingroup {
+	padding-bottom: 13px;
+	margin-bottom: 0;
+}
+.control {
+	background-color: rgb(251, 248, 229);
+	padding-bottom: 0cm;
+	margin-bottom: 0;
+	padding-top: 0;
+}
+.label {
+	padding-top: 0;
+	margin-bottom: 0;
+	padding-bottom: 0;
+}
+.postsales {
+	background-color: rgb(133, 128, 110);
+	color: white;
+	float: right;
+	border: 0;
+}
+.postsales:hover {
+	background-color: rgb(75, 71, 53);
+	color: white;
+	float: right;
+}
+.email {
+	padding-left: 5px;
+	padding-right: 5px;
+}
+.icon {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.link {
+	color: rgb(7, 55, 97);
+	text-decoration: underline;
 	cursor: pointer;
+	padding-left: 25px;
+	margin-bottom: 0;
+	padding-bottom: 0;
 }
-.card {
-	padding-left: 10px;
-	padding-top: 40px;
+.link:hover {
+	color: rgb(44, 143, 230);
+}
+.footer {
+	height: auto;
 }

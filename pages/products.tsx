@@ -13,6 +13,9 @@ import UpdateIcon from '@material-ui/icons/Update';
 import stock from '../styles/stock.module.scss';
 import Navigation from '../components/customNavigation';
 import AuthGuard from '../components/Authentification';
+import TablePaginationActions from '../components/pagination';
+import { TablePagination } from '@material-ui/core';
+import { Edit } from '@material-ui/icons';
 
 interface Products {
 	name: string;
@@ -42,8 +45,9 @@ interface newProduct {
 }
 
 export default function Products(): JSX.Element {
+	//products from server
 	const [products, setProducts] = useState<Array<newProduct>>([]);
-
+	//form states
 	const [productName, setProductName] = useState('');
 	const [numberInstock, setNumberInStock] = useState('');
 	const [priceCash, setPriceCash] = useState('');
@@ -53,10 +57,13 @@ export default function Products(): JSX.Element {
 	const router = useRouter();
 
 	const [loading, setLoading] = useState(false);
-
+	//firestore functions
 	const app = useContext(useFireBase);
 	const firestore = app.firestore();
 
+	//for pagination
+	const [page, setPage] = React.useState(0);
+	const [rowsPerPage, setRowsPerPage] = React.useState(5);
 	const reset = () => {
 		setLoading(false);
 		setNumberInStock('');
@@ -110,6 +117,15 @@ export default function Products(): JSX.Element {
 		}
 		getProducts();
 	}, []);
+
+	const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+		setPage(newPage);
+	};
+
+	const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+		setRowsPerPage(parseInt(event.target.value, 10));
+		setPage(0);
+	};
 	const handleEdit = (product: Products) => {
 		setNumberInStock(product.numberInStock);
 		setPriceBar(product.priceBar);
@@ -158,14 +174,20 @@ export default function Products(): JSX.Element {
 	};
 	return (
 		<AuthGuard>
-			<div className={stock.div}>
+			<div className={stock.div} style={{ height: '100%' }}>
 				<Navigation></Navigation>
 
 				<Row className={stock.row}>
 					<Col lg={3} md={3} sm={6} className={styles.col}>
 						<Card className={stock.card}>
 							<Card.Header>
-								{id ? <h5 className={stock.header}>Edit Product</h5> : <h5 className={stock.header}>New Product</h5>}
+								{id ? (
+									<h5 className={stock.header}>
+										Edit Product<Edit color="primary"></Edit>
+									</h5>
+								) : (
+									<h5 className={stock.header}>New Product</h5>
+								)}
 							</Card.Header>
 							<Card.Body className={styles.cardbody}>
 								<Form>
@@ -278,7 +300,10 @@ export default function Products(): JSX.Element {
 										</tr>
 									</thead>
 									<tbody className={styles.tbody}>
-										{products.map((product, index) => (
+										{(rowsPerPage > 0
+											? products.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+											: products
+										).map((product, index) => (
 											<tr key={product.id}>
 												<td className={stock.teadcell}>{index + 1}</td>
 												<td className={stock.teadcell}>{product.name}</td>
@@ -305,7 +330,22 @@ export default function Products(): JSX.Element {
 									</tbody>
 								</Table>
 							</Card.Body>
-							<Card.Footer>Herwe I will add the pagination componenet</Card.Footer>
+							<Card.Footer>
+								<TablePagination
+									rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+									colSpan={3}
+									count={products.length}
+									rowsPerPage={rowsPerPage}
+									page={page}
+									SelectProps={{
+										inputProps: { 'aria-label': 'rows per page' },
+										native: true,
+									}}
+									onChangePage={handleChangePage}
+									onChangeRowsPerPage={handleChangeRowsPerPage}
+									ActionsComponent={TablePaginationActions}
+								></TablePagination>
+							</Card.Footer>
 						</Card>
 					</Col>
 				</Row>

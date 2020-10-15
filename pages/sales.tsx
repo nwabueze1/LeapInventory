@@ -9,6 +9,8 @@ import stock from '../styles/stock.module.scss';
 import Navigation from '../components/customNavigation';
 import { AccountBox, AttachMoney, CalendarToday, Category } from '@material-ui/icons';
 import AuthGuard from '../components/Authentification';
+import TablePaginationActions from '../components/pagination';
+import { TablePagination } from '@material-ui/core';
 
 interface Customers {
 	id: string;
@@ -64,6 +66,9 @@ export default function Sales(): JSX.Element {
 	const [priceCash, setPriceCash] = useState('');
 	const [priceSuperMkt, setPriceSuperMkt] = useState('');
 
+	//for pagination
+	const [page, setPage] = React.useState(0);
+	const [rowsPerPage, setRowsPerPage] = React.useState(5);
 	//for setting of the price type for the customers
 
 	const app = useContext(FirebaseContext);
@@ -126,6 +131,14 @@ export default function Sales(): JSX.Element {
 		getProducts();
 	}, []);
 
+	const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+		setPage(newPage);
+	};
+
+	const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+		setRowsPerPage(parseInt(event.target.value, 10));
+		setPage(0);
+	};
 	const reset = () => {
 		setCustomerName('');
 		setCustomerType('');
@@ -360,21 +373,39 @@ export default function Sales(): JSX.Element {
 										</tr>
 									</thead>
 									<tbody>
-										{sales.map((sale, index) => (
-											<tr key={sale.id}>
-												<td>{index + 1}</td>
-												<td>{sale.customerName}</td>
-												<td>{sale.customerType}</td>
-												<td>{sale.productName}</td>
-												<td>{sale.productPrice}</td>
-												<td>{sale.quantity}</td>
-												<td>{sale.totalPrice}</td>
-												<td className={styles.date}>{sale.dateAdded}</td>
-											</tr>
-										))}
+										{(rowsPerPage > 0 ? sales.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : sales).map(
+											(sale, index) => (
+												<tr key={sale.id}>
+													<td>{index + 1}</td>
+													<td>{sale.customerName}</td>
+													<td>{sale.customerType}</td>
+													<td>{sale.productName}</td>
+													<td>{sale.productPrice}</td>
+													<td>{sale.quantity}</td>
+													<td>{sale.totalPrice}</td>
+													<td className={styles.date}>{sale.dateAdded}</td>
+												</tr>
+											),
+										)}
 									</tbody>
 								</Table>
 							</Card.Body>
+							<Card.Footer>
+								<TablePagination
+									rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+									colSpan={3}
+									count={products.length}
+									rowsPerPage={rowsPerPage}
+									page={page}
+									SelectProps={{
+										inputProps: { 'aria-label': 'rows per page' },
+										native: true,
+									}}
+									onChangePage={handleChangePage}
+									onChangeRowsPerPage={handleChangeRowsPerPage}
+									ActionsComponent={TablePaginationActions}
+								></TablePagination>
+							</Card.Footer>
 						</Card>
 					</Col>
 				</Row>

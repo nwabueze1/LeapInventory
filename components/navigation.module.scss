@@ -24,3 +24,33 @@
 	background-color: inherit;
 	border: 0;
 }
+.navlink {
+	color: white;
+	font-weight: 300;
+}
+.navlink:focus {
+	box-shadow: inset 0px -3px 0px 0px rgba(107, 95, 100, 0.7);
+	outline: none;
+	border: 0;
+}
+.navlink:active {
+	box-shadow: inset 0px -3px 0px 0px rgba(168, 158, 162, 0.7);
+	outline: none;
+	border: 0;
+}
+.navlink:hover {
+	box-shadow: inset 0px -3px 0px 0px rgba(143, 136, 138, 0.7);
+	outline: none;
+	border: 0;
+}
+.button {
+	background-color: rgb(54, 53, 49);
+	color: white;
+	border: 0;
+	transition: opacity 0.25s ease-out;
+}
+.button:hover {
+	background-color: rgb(184, 181, 172);
+	color: white;
+	border: 0;
+}

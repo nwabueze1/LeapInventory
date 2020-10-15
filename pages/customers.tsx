@@ -6,9 +6,11 @@ import { toast, ToastContainer } from 'react-toastify';
 import styles from '../styles/table.module.scss';
 import stock from '../styles/stock.module.scss';
 import DeleteIcon from '@material-ui/icons/Delete';
-import { AccountBox, Category, ContactPhone, Email, LocationOn, Visibility } from '@material-ui/icons';
+import { AccountBox, Category, ContactPhone, Edit, Email, LocationOn, Visibility, PersonAdd } from '@material-ui/icons';
 import Navigation from '../components/customNavigation';
 import AuthGuard from '../components/Authentification';
+import TablePaginationActions from '../components/pagination';
+import TablePagination from '@material-ui/core/TablePagination';
 
 interface Customers {
 	id: string;
@@ -37,7 +39,7 @@ interface EditCustomers {
 function Customers(): JSX.Element {
 	const [customers, setCustomers] = useState<Array<Customers>>([]);
 	const [categories, setCategories] = useState<Array<Categories>>([]);
-
+	//form states
 	const [loading, setLoading] = useState(false);
 	const [name, setName] = useState('');
 	const [email, setEmail] = useState('');
@@ -45,9 +47,22 @@ function Customers(): JSX.Element {
 	const [category, setCategory] = useState('');
 	const [address, setAddress] = useState('');
 	const [id, setId] = useState('');
+	//for firebase and routing
 	const router = useRouter();
 	const app = useContext(useFirebase);
 	const firestore = app.firestore();
+	//for pagination
+	const [page, setPage] = React.useState(0);
+	const [rowsPerPage, setRowsPerPage] = React.useState(5);
+
+	const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+		setPage(newPage);
+	};
+
+	const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+		setRowsPerPage(parseInt(event.target.value, 10));
+		setPage(0);
+	};
 
 	useEffect(() => {
 		async function getCustomers() {
@@ -92,6 +107,7 @@ function Customers(): JSX.Element {
 	const handleAdd = async () => {
 		if (name.length < 5) return toast.error('customer name must be grater that 5 characters');
 		if (email.length < 7) return toast.error('customer email must be grater that 7 characters');
+		if (!email.includes('@gmail.com')) return toast.error('Email is not valid');
 		if (address.length < 5) return toast.error('customer address must be grater that 5 characters');
 		if (phone.length < 7) return toast.error('customer phone number must be grater that 7 characters');
 		if (category.length < 1) return toast.error('please select a category');
@@ -175,13 +191,21 @@ function Customers(): JSX.Element {
 
 	return (
 		<AuthGuard>
-			<div className={stock.div}>
+			<div className={stock.div} style={{ height: '100%' }}>
 				<Navigation></Navigation>
 				<Row className={stock.row}>
 					<Col lg={3} className="float-left">
 						<Card className={stock.card}>
 							<Card.Header>
-								{id ? <h5 className={stock.header}>Edit Customers</h5> : <h5 className={stock.header}>New Customer</h5>}
+								{id ? (
+									<h5 className={stock.header}>
+										Edit Customers <Edit color="primary"></Edit>
+									</h5>
+								) : (
+									<h5 className={stock.header}>
+										New Customer<PersonAdd color="action"></PersonAdd>
+									</h5>
+								)}
 							</Card.Header>
 							<Card.Body>
 								<Form>
@@ -281,14 +305,6 @@ function Customers(): JSX.Element {
 									//else we render this
 									<span className={styles.Table}>found {customers.length} Customers </span>
 								)}
-								<Button
-									className={stock.postsales}
-									onClick={() => {
-										router.push('/sales');
-									}}
-								>
-									Post sales
-								</Button>
 							</Card.Header>
 							<Card.Body className={stock.cardbody}>
 								<Table className="table-bordered table-sm ">
@@ -316,7 +332,6 @@ function Customers(): JSX.Element {
 												</span>
 											</th>
 											<th className={styles.teadcell}>
-												{' '}
 												<span className={stock.icon}>
 													<ContactPhone color="inherit"></ContactPhone>
 												</span>
@@ -326,7 +341,10 @@ function Customers(): JSX.Element {
 										</tr>
 									</thead>
 									<tbody>
-										{customers.map((customer: Customers, index: number) => (
+										{(rowsPerPage > 0
+											? customers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+											: customers
+										).map((customer: Customers, index: number) => (
 											<tr key={customer.id}>
 												<td className={styles.teadcell}>{index + 1}</td>
 												<td className={styles.teadcell}>{customer.name}</td>
@@ -335,30 +353,46 @@ function Customers(): JSX.Element {
 												<td className={styles.teadcell}>{customer.address}</td>
 												<td className={styles.teadcell}>{customer.phone}</td>
 												<td>
-													<Button
-														className="btn-sm btn-primary"
+													<span
+														style={{ cursor: 'pointer' }}
 														onClick={() => {
 															handleEdit(customer as EditCustomers);
 														}}
 													>
-														<Visibility></Visibility>
-													</Button>
+														<Visibility color="primary"></Visibility>
+													</span>
 												</td>
 												<td>
-													<Button
-														className="btn-sm btn-danger"
+													<span
+														style={{ cursor: 'pointer' }}
 														onClick={() => {
 															handleDelete(customer._id as string);
 														}}
 													>
-														<DeleteIcon></DeleteIcon>
-													</Button>
+														<DeleteIcon style={{ cursor: 'pointer' }} color="secondary"></DeleteIcon>
+													</span>
 												</td>
 											</tr>
 										))}
 									</tbody>
 								</Table>
 							</Card.Body>
+							<Card.Footer className={stock.footer}>
+								<TablePagination
+									rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+									colSpan={3}
+									count={customers.length}
+									rowsPerPage={rowsPerPage}
+									page={page}
+									SelectProps={{
+										inputProps: { 'aria-label': 'rows per page' },
+										native: true,
+									}}
+									onChangePage={handleChangePage}
+									onChangeRowsPerPage={handleChangeRowsPerPage}
+									ActionsComponent={TablePaginationActions}
+								></TablePagination>
+							</Card.Footer>
 							<ToastContainer></ToastContainer>
 						</Card>
 					</Col>

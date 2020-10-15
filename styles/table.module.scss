@@ -1,5 +1,4 @@
 .Table {
-	transition: all 3s;
 	color: rgb(45, 66, 66);
 	text-align: center;
 	display: flex;
@@ -12,7 +11,6 @@
 }
 
 .Table:hover {
-	transform: scale(-0.6);
 	pointer-events: stroke;
 	cursor: pointer;
 }
@@ -39,33 +37,6 @@
 	box-shadow: 5px 5px 6px rgb(73, 31, 67);
 	background-color: rgb(81, 116, 149);
 	color: #ffffff;
-}
-
-.card {
-	background-color: rgb(69, 80, 80);
-	color: #ffffff;
-	box-shadow: 5px 5px 6px 8px rgb(148, 148, 148);
-}
-
-.btn-secondary {
-	box-shadow: 5px 5px 6px rgb(65, 2, 18);
-	color: rgb(3, 148, 124);
-}
-
-.btnSecondaryFloat {
-	box-shadow: 5px 5px 6px rgb(65, 2, 18);
-	color: rgb(230, 236, 235);
-	float: right;
-	transform: scale(1);
-	background-color: rgb(62, 66, 70);
-	transition: 2s;
-	padding: 0;
-	margin-bottom: 0;
-	font-weight: bold;
-	display: flex;
-	width: 70px;
-
-	height: 35px;
 }
 
 .text {

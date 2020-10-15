@@ -1,131 +1,73 @@
-.form {
-	border: 1px solid rgb(7, 5, 5);
-	background-color: rgb(76, 136, 131);
-	margin-top: 12px;
-	color: #ffffff;
-	padding-left: 5px;
-	margin-left: 9px;
-	padding-top: 0px;
-	box-shadow: 5px 5px 6px rgb(255, 211, 211);
-	font-weight: bold;
-	border-radius: 14px;
+.div {
+	height: 100vh;
+	background-color: rgb(255, 239, 239);
 }
-
-.welcome {
+.row {
+	padding: 25px;
+}
+.card {
+	background-color: rgb(122, 117, 97);
+	color: white;
+}
+.cardhead {
+	background-color: rgb(54, 49, 25);
+	color: rgb(224, 224, 224);
+}
+.h {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	font-style: oblique;
-	margin-bottom: 0;
-	padding-bottom: 0;
-	color: #110e0e;
-	font-weight: bolder;
-	border: 2px solid #fff;
-	border-radius: 14px;
-	max-width: 35%;
-	background-color: rgb(8, 221, 157);
 }
-
-.welcome:hover {
-}
-
-.row {
-	padding-top: 30px;
-}
-
-.col {
-	padding-left: 15px;
-	padding-right: 15px;
-	padding-top: 1;
-}
-
-.header {
-	display: flex;
-	justify-content: center;
-	align-content: center;
-	color: #fafafa;
-	font-style: oblique;
-}
-.hr {
-	background: white;
-	box-shadow: 2px 2px 2px 2px rgb(255, 255, 255);
-}
-.div {
-	background-color: rgb(216, 201, 201);
-}
-
 .input {
-	padding-left: 14px;
-	padding-right: 14px;
+	padding-top: 0;
 }
-
-.button {
-	padding-left: 10px;
+.label {
+	padding: 0px;
+	margin: 0px;
 }
-.add {
-	background-color: white;
-	color: green;
-	font-weight: bold;
+.control {
+	padding: 0px;
+	margin: 0px;
+	padding-top: 0px;
 }
-.update {
-	background-color: white;
-	color: green;
-	font-weight: bold;
+.thead {
+	color: aliceblue;
+	font-size: 90%;
+}
+.text {
+	padding-bottom: 0px;
+	margin-bottom: 0px;
+	color: white;
+}
+.edit {
+	cursor: pointer;
+}
+.icon {
+	background-color: rgb(184, 182, 171);
+}
+.icon:hover {
+	background-color: antiquewhite;
+}
+.delete {
+	background-color: rgb(184, 182, 171);
+	pointer-events: stroke;
 }
 .reset {
-	background-color: rgb(255, 0, 0);
 	float: right;
-	margin-right: 2px;
+	background-color: red;
 	font-weight: bold;
 }
 .reset:hover {
 	background-color: white;
+	font-weight: bold;
 	color: red;
 }
-.control {
-	box-shadow: 5px 5px 6px rgb(97, 92, 96);
-	background-color: rgb(203, 255, 251);
+.add:hover {
+	background-color: rgb(80, 79, 79);
 }
-
-.thead {
-	background-color: rgb(76, 136, 131);
-	font-weight: 200%;
-	color: rgb(255, 243, 243);
-	margin-top: 10px;
+.update {
+	background-color: rgb(95, 92, 92);
 }
-
-.tbody {
-	background-color: rgb(76, 136, 131);
-	font-weight: 200%;
-	color: #ffffff;
-	margin-top: 0;
-	padding-top: 0;
+.update:hover {
+	background-color: rgb(141, 139, 139);
 }
-.edit {
-	background-color: rgb(13, 235, 243);
-	font-weight: bold;
-	color: black;
-	font-style: oblique;
-}
-.edit:hover {
-	background-color: rgb(255, 255, 255);
-	font-weight: bold;
-	color: rgb(78, 77, 77);
-	font-style: oblique;
-}
-.delete {
-	color: rgb(255, 255, 255);
-	background-color: red;
-}
-.delete:hover {
-	color: red;
-	background-color: white;
-}
-
-// .tbody:hover {
-//     cursor: pointer;
-//     font-weight: bold;
-//     box-shadow: 5px 5px 6px rgb(73, 31, 67);
-
-//     color: #ffffff;
-// }

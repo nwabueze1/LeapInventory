@@ -44,9 +44,9 @@ export default function Home({ children }: HomeProp): JSX.Element {
 						<h4 className={styles.head}>LEAP INVENTORY</h4>
 						<Form className={styles.form}>
 							<Form.Group className={stock.logingroup}>
-								<Form.Label className={stock.label}>EMAIL</Form.Label>
+								<Form.Label className={styles.label}>EMAIL</Form.Label>
 								<Form.Control
-									className={stock.control}
+									className={styles.control}
 									type="email"
 									autoFocus
 									value={email}
@@ -55,10 +55,10 @@ export default function Home({ children }: HomeProp): JSX.Element {
 								></Form.Control>
 							</Form.Group>
 							<Form.Group className={stock.logingroup}>
-								<Form.Label className={stock.label}>PASSWORD</Form.Label>
+								<Form.Label className={styles.label}>PASSWORD</Form.Label>
 								<span></span>
 								<Form.Control
-									className={stock.control}
+									className={styles.control}
 									type="password"
 									value={password}
 									onChange={(e) => setPassword(e.target.value)}
@@ -74,13 +74,7 @@ export default function Home({ children }: HomeProp): JSX.Element {
 					</Col>
 				</Row>
 			</Container>
-			<ToastContainer
-				autoClose={4000}
-				hideProgressBar={false}
-				closeButton
-				closeOnClick={true}
-				enableMultiContainer
-			></ToastContainer>
+			<ToastContainer></ToastContainer>
 		</div>
 	);
 }

@@ -13,16 +13,23 @@ export default function Navigation() {
 					<span className={styles.span}>LEAP INVENTORY</span>
 				</Navbar.Brand>
 				<Nav className="mr-auto">
-					<Nav.Link onClick={() => router.push('/welcome')}>Home</Nav.Link>
-					<Nav.Link onClick={() => router.push('/customers')}>Customers</Nav.Link>
-					<Nav.Link onClick={() => router.push('/products')}>Products</Nav.Link>
-					<Nav.Link onClick={() => router.push('/sales')}>Sales</Nav.Link>
-					<Nav.Link onClick={() => router.push('/dailyStock')}>DailyStock</Nav.Link>
+					<Nav.Link onClick={() => router.push('/welcome')}>
+						<span className={styles.navlink}>Home</span>
+					</Nav.Link>
+					<Nav.Link onClick={() => router.push('/customers')}>
+						<span className={styles.navlink}>Customers</span>
+					</Nav.Link>
+					<Nav.Link onClick={() => router.push('/products')}>
+						<span className={styles.navlink}>Products</span>
+					</Nav.Link>
+					<Nav.Link onClick={() => router.push('/dailyStock')}>
+						<span className={styles.navlink}>DailyStock</span>
+					</Nav.Link>
 				</Nav>
 				<Form inline>
 					<SimpleMenu></SimpleMenu>
 					<FormControl type="text" placeholder="search customers" className="mr-sm-2"></FormControl>
-					<Button variant="outline-info">Search</Button>
+					<Button className={styles.button}>Search</Button>
 				</Form>
 			</Navbar>
 		</div>

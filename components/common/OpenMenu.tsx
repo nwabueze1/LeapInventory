@@ -41,6 +41,14 @@ export default function SimpleMenu() {
 				<MenuItem
 					onClick={() => {
 						handleClose();
+						router.push('/sales');
+					}}
+				>
+					Sales
+				</MenuItem>
+				<MenuItem
+					onClick={() => {
+						handleClose();
 						router.push('/expenses');
 					}}
 				>
