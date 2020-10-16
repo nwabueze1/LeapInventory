@@ -6,7 +6,17 @@ import { toast, ToastContainer } from 'react-toastify';
 import styles from '../styles/table.module.scss';
 import stock from '../styles/stock.module.scss';
 import DeleteIcon from '@material-ui/icons/Delete';
-import { AccountBox, Category, ContactPhone, Edit, Email, LocationOn, Visibility, PersonAdd } from '@material-ui/icons';
+import {
+	AccountBox,
+	Category,
+	ContactPhone,
+	Edit,
+	Email,
+	LocationOn,
+	Visibility,
+	PersonAdd,
+	Clear,
+} from '@material-ui/icons';
 import Navigation from '../components/customNavigation';
 import AuthGuard from '../components/Authentification';
 import TablePaginationActions from '../components/pagination';
@@ -38,6 +48,7 @@ interface EditCustomers {
 
 function Customers(): JSX.Element {
 	const [customers, setCustomers] = useState<Array<Customers>>([]);
+	const [filteredCustomer, setFilteredCustomer] = useState<Array<Customers>>([]);
 	const [categories, setCategories] = useState<Array<Categories>>([]);
 	//form states
 	const [loading, setLoading] = useState(false);
@@ -53,7 +64,9 @@ function Customers(): JSX.Element {
 	const firestore = app.firestore();
 	//for pagination
 	const [page, setPage] = React.useState(0);
-	const [rowsPerPage, setRowsPerPage] = React.useState(5);
+	const [rowsPerPage, setRowsPerPage] = React.useState(10);
+	//searching
+	const [searchQuery, setSearchQuery] = useState('');
 
 	const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
 		setPage(newPage);
@@ -79,6 +92,7 @@ function Customers(): JSX.Element {
 			});
 
 			setCustomers(customers);
+			setFilteredCustomer(customers);
 		}
 		async function getCategory() {
 			const categoryRef = firestore.collection('category');
@@ -108,9 +122,9 @@ function Customers(): JSX.Element {
 		if (name.length < 5) return toast.error('customer name must be grater that 5 characters');
 		if (email.length < 7) return toast.error('customer email must be grater that 7 characters');
 		if (!email.includes('@gmail.com')) return toast.error('Email is not valid');
+		if (category.length < 1) return toast.error('please select a category');
 		if (address.length < 5) return toast.error('customer address must be grater that 5 characters');
 		if (phone.length < 7) return toast.error('customer phone number must be grater that 7 characters');
-		if (category.length < 1) return toast.error('please select a category');
 		if (name.length > 100 || email.length > 50 || address.length > 100 || phone.length > 20)
 			return toast.error('Invalid Request');
 
@@ -135,6 +149,11 @@ function Customers(): JSX.Element {
 		}
 		setLoading(false);
 	};
+	const handleSearch = () => {
+		let allCustomers = customers;
+		let filtered = allCustomers.filter((customer) => customer.name.toLowerCase().match(searchQuery.toLowerCase()));
+		setFilteredCustomer(filtered);
+	};
 
 	const handleDelete = async (id: string) => {
 		const deleteConfirm = confirm('Are you sure you ant to delete this document?');
@@ -147,8 +166,8 @@ function Customers(): JSX.Element {
 				//call the database to delete the customer with the id
 				await firestore.collection('customers').doc(id).delete();
 			} catch (error) {
-				return toast.error('cant perform this operation');
 				setCustomers(allCustomers);
+				return toast.error('cant perform this operation');
 			}
 
 			toast.success('deleted successfully');
@@ -303,8 +322,29 @@ function Customers(): JSX.Element {
 									<span className={styles.Table}>There are No customer in the database. checking for updates...</span>
 								) : (
 									//else we render this
+
 									<span className={styles.Table}>found {customers.length} Customers </span>
 								)}
+								<Form inline className={stock.form}>
+									<Form.Control
+										type="text"
+										value={searchQuery}
+										className={stock.controls}
+										placeholder="search Customers"
+										onChange={(e) => {
+											setSearchQuery(e.target.value);
+											handleSearch();
+										}}
+									></Form.Control>
+									<span
+										onClick={() => {
+											setSearchQuery('');
+											setCustomers(customers);
+										}}
+									>
+										{searchQuery && <Clear fontSize="small" color="secondary" />}
+									</span>
+								</Form>
 							</Card.Header>
 							<Card.Body className={stock.cardbody}>
 								<Table className="table-bordered table-sm ">
@@ -341,39 +381,70 @@ function Customers(): JSX.Element {
 										</tr>
 									</thead>
 									<tbody>
-										{(rowsPerPage > 0
-											? customers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-											: customers
-										).map((customer: Customers, index: number) => (
-											<tr key={customer.id}>
-												<td className={styles.teadcell}>{index + 1}</td>
-												<td className={styles.teadcell}>{customer.name}</td>
-												<td className={styles.teadcell}>{customer.email}</td>
-												<td className={styles.teadcell}>{customer.category}</td>
-												<td className={styles.teadcell}>{customer.address}</td>
-												<td className={styles.teadcell}>{customer.phone}</td>
-												<td>
-													<span
-														style={{ cursor: 'pointer' }}
-														onClick={() => {
-															handleEdit(customer as EditCustomers);
-														}}
-													>
-														<Visibility color="primary"></Visibility>
-													</span>
-												</td>
-												<td>
-													<span
-														style={{ cursor: 'pointer' }}
-														onClick={() => {
-															handleDelete(customer._id as string);
-														}}
-													>
-														<DeleteIcon style={{ cursor: 'pointer' }} color="secondary"></DeleteIcon>
-													</span>
-												</td>
-											</tr>
-										))}
+										{searchQuery.length > 0
+											? filteredCustomer.map((customer: Customers, index: number) => (
+													<tr key={customer.id}>
+														<td className={styles.teadcell}>{index + 1}</td>
+														<td className={styles.teadcell}>{customer.name}</td>
+														<td className={styles.teadcell}>{customer.email}</td>
+														<td className={styles.teadcell}>{customer.category}</td>
+														<td className={styles.teadcell}>{customer.address}</td>
+														<td className={styles.teadcell}>{customer.phone}</td>
+														<td>
+															<span
+																style={{ cursor: 'pointer' }}
+																onClick={() => {
+																	handleEdit(customer as EditCustomers);
+																}}
+															>
+																<Visibility color="primary"></Visibility>
+															</span>
+														</td>
+														<td>
+															<span
+																style={{ cursor: 'pointer' }}
+																onClick={() => {
+																	handleDelete(customer._id as string);
+																}}
+															>
+																<DeleteIcon style={{ cursor: 'pointer' }} color="secondary"></DeleteIcon>
+															</span>
+														</td>
+													</tr>
+											  ))
+											: (rowsPerPage > 0
+													? customers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+													: customers
+											  ).map((customer: Customers, index: number) => (
+													<tr key={customer.id}>
+														<td className={styles.teadcell}>{index + 1}</td>
+														<td className={styles.teadcell}>{customer.name}</td>
+														<td className={styles.teadcell}>{customer.email}</td>
+														<td className={styles.teadcell}>{customer.category}</td>
+														<td className={styles.teadcell}>{customer.address}</td>
+														<td className={styles.teadcell}>{customer.phone}</td>
+														<td>
+															<span
+																style={{ cursor: 'pointer' }}
+																onClick={() => {
+																	handleEdit(customer as EditCustomers);
+																}}
+															>
+																<Visibility color="primary"></Visibility>
+															</span>
+														</td>
+														<td>
+															<span
+																style={{ cursor: 'pointer' }}
+																onClick={() => {
+																	handleDelete(customer._id as string);
+																}}
+															>
+																<DeleteIcon style={{ cursor: 'pointer' }} color="secondary"></DeleteIcon>
+															</span>
+														</td>
+													</tr>
+											  ))}
 									</tbody>
 								</Table>
 							</Card.Body>
@@ -393,8 +464,8 @@ function Customers(): JSX.Element {
 									ActionsComponent={TablePaginationActions}
 								></TablePagination>
 							</Card.Footer>
-							<ToastContainer></ToastContainer>
 						</Card>
+						<ToastContainer></ToastContainer>
 					</Col>
 				</Row>
 			</div>

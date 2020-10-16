@@ -2,8 +2,10 @@
 	width: 100vw;
 	background-color: rgb(177, 173, 159);
 	color: white;
+	padding-left: 11px;
+}
+.sticky {
 	position: sticky;
-	padding-left: 5px;
 }
 .brand {
 	font-weight: bold;
@@ -53,4 +55,11 @@
 	background-color: rgb(184, 181, 172);
 	color: white;
 	border: 0;
+}
+.control {
+	background-color: rgb(251, 248, 229);
+	padding-bottom: 0cm;
+	margin-bottom: 0;
+	padding-top: 0;
+	width: 90px;
 }
