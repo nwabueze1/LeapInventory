@@ -4,7 +4,6 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Card, Row, Col, Table } from 'react-bootstrap';
 import AuthGuard from '../components/Authentification';
 import useFirebase from '../components/useFirebase';
-import styles from '../styles/expenses.module.scss';
 import stock from '../styles/stock.module.scss';
 
 interface Products {

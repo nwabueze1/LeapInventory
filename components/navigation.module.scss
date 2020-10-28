@@ -1,8 +1,7 @@
 .navbar {
-	width: 100vw;
+	width: auto;
 	background-color: rgb(177, 173, 159);
 	color: white;
-	padding-left: 11px;
 }
 .sticky {
 	position: sticky;
@@ -10,12 +9,14 @@
 .brand {
 	font-weight: bold;
 	font-style: oblique;
-	padding-right: 105px;
-	padding-left: 15px;
+	margin-right: 105px;
 	cursor: pointer;
 }
 .span {
 	color: rgb(0, 0, 0);
+}
+.spans {
+	padding-left: 30px;
 }
 .menu {
 	background-color: inherit;
@@ -24,11 +25,13 @@
 }
 .menu:hover {
 	background-color: inherit;
+	font-style: normal;
+	font-family: 'Times New Roman', Times, serif;
 	border: 0;
 }
 .navlink {
-	color: white;
-	font-weight: 300;
+	color: rgb(0, 0, 0);
+	font-weight: 600;
 }
 .navlink:focus {
 	box-shadow: inset 0px -3px 0px 0px rgba(107, 95, 100, 0.7);

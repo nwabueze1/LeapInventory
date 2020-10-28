@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import { useRouter } from 'next/router';
-import { Spinner } from 'react-bootstrap';
+import { Button, Spinner } from 'react-bootstrap';
 import useFirebase from '../useFirebase';
 import { Apps } from '@material-ui/icons';
 import styles from '../navigation.module.scss';

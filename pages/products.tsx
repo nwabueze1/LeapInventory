@@ -328,24 +328,26 @@ export default function Products(): JSX.Element {
 											</tr>
 										))}
 									</tbody>
+									<tfoot>
+										<tr>
+											<TablePagination
+												rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+												colSpan={8}
+												count={products.length}
+												rowsPerPage={rowsPerPage}
+												page={page}
+												SelectProps={{
+													inputProps: { 'aria-label': 'rows per page' },
+													native: true,
+												}}
+												onChangePage={handleChangePage}
+												onChangeRowsPerPage={handleChangeRowsPerPage}
+												ActionsComponent={TablePaginationActions}
+											></TablePagination>
+										</tr>
+									</tfoot>
 								</Table>
 							</Card.Body>
-							<Card.Footer>
-								<TablePagination
-									rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-									colSpan={3}
-									count={products.length}
-									rowsPerPage={rowsPerPage}
-									page={page}
-									SelectProps={{
-										inputProps: { 'aria-label': 'rows per page' },
-										native: true,
-									}}
-									onChangePage={handleChangePage}
-									onChangeRowsPerPage={handleChangeRowsPerPage}
-									ActionsComponent={TablePaginationActions}
-								></TablePagination>
-							</Card.Footer>
 						</Card>
 					</Col>
 				</Row>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Button, Col, Dropdown, Form, Row, Table, ButtonGroup, Card } from 'react-bootstrap';
+import { Button, Col, Dropdown, Form, Row, Table, ButtonGroup, Card, Container } from 'react-bootstrap';
 import styles from '../styles/sales.module.scss';
 import FirebaseContext from '../components/useFirebase';
 import { toast, ToastContainer } from 'react-toastify';
@@ -45,11 +45,26 @@ interface Sales {
 	quantity: string;
 	totalPrice: string;
 	dateAdded: string;
+	day?: string;
+	month?: string;
+	year?: string;
 	_id?: string;
 }
+interface TodaySales {
+	id: string;
+	customerName: string;
+	customerType: string;
+	productName: string;
+	productPrice: string;
+	quantity: string;
+	totalPrice: string;
+	_id?: string;
+}
+
 export default function Sales(): JSX.Element {
 	const [products, setProducts] = useState<Array<Products>>([]);
 	const [sales, setSales] = useState<Array<Sales>>([]);
+	const [todaySales, setTodaySales] = useState<Array<TodaySales>>([]);
 	const [customers, setCustomers] = useState<Array<Customers>>([]);
 	const [categories, setCategories] = useState<Array<Categories>>([]);
 
@@ -68,7 +83,7 @@ export default function Sales(): JSX.Element {
 
 	//for pagination
 	const [page, setPage] = React.useState(0);
-	const [rowsPerPage, setRowsPerPage] = React.useState(5);
+	const [rowsPerPage, setRowsPerPage] = React.useState(10);
 	//for setting of the price type for the customers
 
 	const app = useContext(FirebaseContext);
@@ -77,6 +92,7 @@ export default function Sales(): JSX.Element {
 	useEffect(() => {
 		async function getCustomers() {
 			//fetching of data from fiestore
+
 			const customersRef = firestore.collection('customers');
 			const snapshot = await customersRef.get();
 
@@ -98,36 +114,50 @@ export default function Sales(): JSX.Element {
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				products.push(appObj as Products);
 			});
-			async function getCategory() {
-				const categoryRef = firestore.collection('category');
-				const snapshot = await categoryRef.get();
-
-				const categories: Array<Categories> = [];
-				snapshot.forEach((doc) => {
-					const appObj = { ...doc.data(), ['_id']: doc.id };
-					categories.push(appObj as Categories);
-				});
-				setCategories(categories);
-			}
-			async function getSales() {
-				const date = moment().endOf('day').fromNow();
-
-				const salesRef = firestore.collection('sales');
-
-				const snapshot = await salesRef.get();
-
-				const sales: Array<Sales> = [];
-				snapshot.forEach((doc) => {
-					const appObj = { ...doc.data(), ['_id']: doc.id };
-					sales.push(appObj as Sales);
-				});
-				setSales(sales);
-			}
-			getCustomers();
-			getSales();
-			getCategory();
 			setProducts(products);
 		}
+		async function getCategory() {
+			const categoryRef = firestore.collection('category');
+			const snapshot = await categoryRef.get();
+
+			const categories: Array<Categories> = [];
+			snapshot.forEach((doc) => {
+				const appObj = { ...doc.data(), ['_id']: doc.id };
+				categories.push(appObj as Categories);
+			});
+			setCategories(categories);
+		}
+		async function getSales() {
+			const month = moment().format('MMMM YYYY');
+			const salesRef = firestore.collection('sales').where('month', '==', `${month}`).orderBy('dateAdded', 'asc');
+
+			const snapshot = await salesRef.get();
+
+			const sales: Array<Sales> = [];
+			snapshot.forEach((doc) => {
+				const appObj = { ...doc.data(), ['_id']: doc.id };
+				sales.push(appObj as Sales);
+			});
+			setSales(sales);
+		}
+		async function getTodaySales() {
+			const date = moment();
+
+			const salesRef = firestore.collection('sales');
+
+			const snapshot = await salesRef.get();
+
+			const todaySales: Array<Sales> = [];
+			snapshot.forEach((doc) => {
+				const appObj = { ...doc.data(), ['_id']: doc.id };
+				sales.push(appObj as Sales);
+			});
+			setTodaySales(todaySales.filter((m) => m.dateAdded.startsWith(date.toString())));
+		}
+		getCustomers();
+		getSales();
+		getCategory();
+		getTodaySales();
 		getProducts();
 	}, []);
 
@@ -147,6 +177,7 @@ export default function Sales(): JSX.Element {
 		setQuantity('');
 	};
 	const handleSubmit = async () => {
+		console.log(todaySales);
 		if (customerName.length < 5) return toast.error('customer Name can not be less than 5 xters');
 		if (customerType.length < 1) return toast.error('please select the customer type');
 		if (productName.length < 2) return toast.error('please select a valid product');
@@ -156,6 +187,9 @@ export default function Sales(): JSX.Element {
 		if (quantity.length < 1 || quantity.length > 4) return toast.error('Invalid quantity');
 		if (+quantity <= 0) return toast.error('please enter a valid quantity');
 		const date = moment().format('MMMM Do YYYY, h:mm:ss a');
+		const month = moment().format('MMMM YYYY');
+		const day = moment().format('MMMM Do YYYY');
+		const year = moment().format('YYYY');
 		const time = Date.now();
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		const sale: Sales = {
@@ -167,12 +201,15 @@ export default function Sales(): JSX.Element {
 			quantity,
 			totalPrice: `${+quantity * +productPrice}`,
 			dateAdded: `${date}`,
+			day: day,
+			month: month,
+			year: year,
 		};
 
 		try {
 			if (+numberInStock <= 0) return toast.error('this product is out of stock');
 			if (+numberInStock - +quantity < 0)
-				return toast.error('the product seems to be out of stock, check the stock available for this product');
+				return toast.warn(` the stock available for this product is ${+numberInStock} `);
 			await firestore.collection('sales').add(sale);
 			await firestore
 				.collection('products')
@@ -191,10 +228,10 @@ export default function Sales(): JSX.Element {
 			return toast.error('Cannot post sales. check you internet');
 		}
 	};
-
+	const resetPrice = () => {};
 	return (
 		<AuthGuard>
-			<div className={stock.div} style={{ height: '100%' }}>
+			<div className={stock.div}>
 				<Navigation></Navigation>
 				<Row className={stock.row}>
 					<Col xs={12} sm={12} md={4} lg={3} xl={3}>
@@ -250,7 +287,7 @@ export default function Sales(): JSX.Element {
 									<Form.Group className={stock.formgroup}>
 										<Form.Label className={stock.label}>ProductName</Form.Label>
 										<span className={styles.dropdown}>
-											<Dropdown as={ButtonGroup}>
+											<Dropdown as={ButtonGroup} className={styles.buttongroup}>
 												<Dropdown.Toggle split className={styles.dropdown} id="dropdown-split-basic" />
 
 												<Dropdown.Menu>
@@ -259,6 +296,11 @@ export default function Sales(): JSX.Element {
 															className={styles.dropdownMenu}
 															key={product.id}
 															onClick={() => {
+																if (productPrice.length > 0) {
+																	setPriceBar('');
+																	setPriceCash('');
+																	setPriceSuperMkt('');
+																}
 																setPriceCash(product.priceCash);
 																setPriceBar(product.priceBar);
 																setPriceSuperMkt(product.priceSuperMkt);

@@ -22,6 +22,7 @@
 .dropdown:hover {
 	background-color: inherit;
 	border: 0px;
+	color: black;
 }
 .dropdown:active {
 	background-color: inherit;
@@ -36,7 +37,7 @@
 }
 .dropdownMenu:hover {
 	background-color: rgb(122, 117, 97);
-	color: white;
+	color: black;
 }
 .label {
 	padding: 0px;
@@ -46,4 +47,14 @@
 	height: 70%;
 	padding-bottom: 0px;
 	margin-bottom: 0px;
+}
+.select {
+	border: 0;
+}
+.buttongroup {
+	background-color: #f2edd7ff;
+	color: black;
+}
+.buttongroup:active {
+	background-color: inherit;
 }

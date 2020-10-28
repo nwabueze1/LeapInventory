@@ -1,0 +1,20 @@
+.card {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.div {
+	// display: flex;
+	// justify-content: center;
+	// align-items: center;
+	// width: 90vw;
+	color: rgb(74, 59, 209);
+}
+.col {
+	padding: 10px;
+}
+.cards {
+	flex: 1;
+	height: inherit;
+	width: inherit;
+}

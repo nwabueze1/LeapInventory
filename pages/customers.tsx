@@ -80,7 +80,7 @@ function Customers(): JSX.Element {
 	useEffect(() => {
 		async function getCustomers() {
 			//fetching of data from fiestore
-			const customersRef = firestore.collection('customers');
+			const customersRef = firestore.collection('customers').orderBy('name');
 			const snapshot = await customersRef.get();
 
 			const customers: Array<Customers> = [];
@@ -347,7 +347,7 @@ function Customers(): JSX.Element {
 								</Form>
 							</Card.Header>
 							<Card.Body className={stock.cardbody}>
-								<Table className="table-bordered table-sm ">
+								<Table className="table-bordered table-sm " responsive="sm">
 									<thead>
 										<tr>
 											<th>S/N</th>
@@ -446,24 +446,26 @@ function Customers(): JSX.Element {
 													</tr>
 											  ))}
 									</tbody>
+									<tfoot className={stock.footer}>
+										<tr>
+											<TablePagination
+												rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+												colSpan={8}
+												count={customers.length}
+												rowsPerPage={rowsPerPage}
+												page={page}
+												SelectProps={{
+													inputProps: { 'aria-label': 'rows per page' },
+													native: true,
+												}}
+												onChangePage={handleChangePage}
+												onChangeRowsPerPage={handleChangeRowsPerPage}
+												ActionsComponent={TablePaginationActions}
+											></TablePagination>
+										</tr>
+									</tfoot>
 								</Table>
 							</Card.Body>
-							<Card.Footer className={stock.footer}>
-								<TablePagination
-									rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-									colSpan={3}
-									count={customers.length}
-									rowsPerPage={rowsPerPage}
-									page={page}
-									SelectProps={{
-										inputProps: { 'aria-label': 'rows per page' },
-										native: true,
-									}}
-									onChangePage={handleChangePage}
-									onChangeRowsPerPage={handleChangeRowsPerPage}
-									ActionsComponent={TablePaginationActions}
-								></TablePagination>
-							</Card.Footer>
 						</Card>
 						<ToastContainer></ToastContainer>
 					</Col>

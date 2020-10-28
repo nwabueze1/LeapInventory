@@ -15,6 +15,8 @@ interface Expenses {
 	date: string;
 	description: string;
 	price: string;
+	year?: string;
+	month?: string;
 }
 interface ProductExpense {
 	expensestype: string;
@@ -23,6 +25,8 @@ interface ProductExpense {
 	unitPrice: string;
 	totalPrice: string;
 	productName: string;
+	year?: string;
+	month?: string;
 }
 interface expenseCat {
 	id: string;
@@ -110,7 +114,8 @@ const Expenses = (): JSX.Element => {
 		if (price.length < 2 || +price <= 0) return toast.error('please enter a vlaid price');
 		if (category.length < 5) return toast.error('Please enter a valid expenses type');
 		if (description.length < 15) return toast.error('please enter a describe the type of expenses');
-
+		const month = moment().format('MMMM YYYY');
+		const year = moment().format('YYYY');
 		const dateAdded = moment().format('MMMM Do YYYY, h:mm:ss a');
 		const originalExpenses = expenses;
 		const newExpenses: Expenses = {
@@ -118,6 +123,8 @@ const Expenses = (): JSX.Element => {
 			expesestype: category,
 			price,
 			date: `${dateAdded}`,
+			month,
+			year,
 		};
 		try {
 			setLoading(true);
@@ -140,6 +147,8 @@ const Expenses = (): JSX.Element => {
 		if (category.length < 5) return toast.error('Please enter a valid expenses type');
 
 		const dateAdded = moment().format('MMMM Do YYYY, h:mm:ss a');
+		const month = moment().format('MMMM YYYY');
+		const year = moment().format('YYYY');
 		const newProductExpense: ProductExpense = {
 			expensestype: category,
 			productName: productName,
@@ -147,6 +156,8 @@ const Expenses = (): JSX.Element => {
 			productQuantity: productQuantity,
 			totalPrice: `${+unitPrice * +productQuantity}`,
 			unitPrice: unitPrice,
+			month: month,
+			year: year,
 		};
 		try {
 			await firestore.collection('productExpenses').add(newProductExpense);
@@ -155,7 +166,11 @@ const Expenses = (): JSX.Element => {
 				.doc(productId)
 				.update({
 					numberInStock: `${+numberInStock + +productQuantity}`,
-					numberOfEmpties: `${!numberOfEmpties || +numberOfEmpties < 0 ? 0 : +numberOfEmpties - +productQuantity}`,
+					numberOfEmpties: `${
+						!numberOfEmpties || +numberOfEmpties < 0 || +numberOfEmpties - +numberInStock < 0
+							? 0
+							: +numberOfEmpties - +productQuantity
+					}`,
 				});
 			toast.success('added successfully');
 
