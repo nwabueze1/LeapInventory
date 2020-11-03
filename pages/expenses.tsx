@@ -223,7 +223,7 @@ const Expenses = (): JSX.Element => {
 											required
 										></Form.Control>
 									</Form.Group>
-									{category.match('Buying Of Empties') && (
+									{category.match('Buying of Empties') && (
 										<Form.Group className={stock.formgroup}>
 											<Form.Label className={stock.label}>
 												Product Name
@@ -263,7 +263,7 @@ const Expenses = (): JSX.Element => {
 											></Form.Control>
 										</Form.Group>
 									)}
-									{category.match('Buying Of Empties') && (
+									{category.match('Buying of Empties') && (
 										<Form.Group className={stock.formgroup}>
 											<Form.Label className={stock.label}>Quantity</Form.Label>
 											<Form.Control
@@ -274,7 +274,7 @@ const Expenses = (): JSX.Element => {
 											></Form.Control>
 										</Form.Group>
 									)}
-									{category.match('Buying Of Empties') && (
+									{category.match('Buying of Empties') && (
 										<Form.Group className={stock.formgroup}>
 											<Form.Label className={stock.label}>Unit Price</Form.Label>
 											<Form.Control
@@ -287,7 +287,7 @@ const Expenses = (): JSX.Element => {
 											></Form.Control>
 										</Form.Group>
 									)}
-									{category.match('Buying Of Empties') && (
+									{category.match('Buying of Empties') && (
 										<Form.Group className={stock.formgroup}>
 											<Form.Label className={stock.label}>TotalPrice Price</Form.Label>
 											<Form.Control
@@ -300,7 +300,7 @@ const Expenses = (): JSX.Element => {
 											></Form.Control>
 										</Form.Group>
 									)}
-									{!category.match('Buying Of Empties') && (
+									{!category.match('Buying of Empties') && (
 										<Form.Group className={stock.formgroup}>
 											<Form.Label className={stock.label}>Price</Form.Label>
 											<Form.Control
@@ -311,7 +311,7 @@ const Expenses = (): JSX.Element => {
 										</Form.Group>
 									)}
 
-									{!category.match('Buying Of Empties') && (
+									{!category.match('Buying of Empties') && (
 										<Form.Group className={stock.formgroup}>
 											<Form.Label className={stock.label}>Description</Form.Label>
 											<Form.Control
@@ -325,7 +325,7 @@ const Expenses = (): JSX.Element => {
 										</Form.Group>
 									)}
 									<Form.Group>
-										{!category.match('Buying Of Empties') ? (
+										{!category.match('Buying of Empties') ? (
 											<Button className={styles.button} onClick={handleAddExpenses}>
 												{!loading ? <span>Submit</span> : <Spinner animation="border" variant="light" />}
 											</Button>

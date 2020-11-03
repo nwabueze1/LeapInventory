@@ -417,7 +417,7 @@ export default function Sales(): JSX.Element {
 									<tbody>
 										{(rowsPerPage > 0 ? sales.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : sales).map(
 											(sale, index) => (
-												<tr key={sale.id}>
+												<tr key={index}>
 													<td>{index + 1}</td>
 													<td>{sale.customerName}</td>
 													<td>{sale.customerType}</td>
@@ -430,24 +430,26 @@ export default function Sales(): JSX.Element {
 											),
 										)}
 									</tbody>
+									<tfoot>
+										<tr>
+											<TablePagination
+												rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+												colSpan={3}
+												count={products.length}
+												rowsPerPage={rowsPerPage}
+												page={page}
+												SelectProps={{
+													inputProps: { 'aria-label': 'rows per page' },
+													native: true,
+												}}
+												onChangePage={handleChangePage}
+												onChangeRowsPerPage={handleChangeRowsPerPage}
+												ActionsComponent={TablePaginationActions}
+											></TablePagination>
+										</tr>
+									</tfoot>
 								</Table>
 							</Card.Body>
-							<Card.Footer>
-								<TablePagination
-									rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-									colSpan={3}
-									count={products.length}
-									rowsPerPage={rowsPerPage}
-									page={page}
-									SelectProps={{
-										inputProps: { 'aria-label': 'rows per page' },
-										native: true,
-									}}
-									onChangePage={handleChangePage}
-									onChangeRowsPerPage={handleChangeRowsPerPage}
-									ActionsComponent={TablePaginationActions}
-								></TablePagination>
-							</Card.Footer>
 						</Card>
 					</Col>
 				</Row>

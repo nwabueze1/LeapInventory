@@ -3,9 +3,8 @@ import useFirebase from '../useFirebase';
 import moment from 'moment';
 import { Card, CardContent, LinearProgress, List, ListItemText, Typography } from '@material-ui/core';
 import barColor from '../common/barcolor';
-import { Bar, Line, Polar } from 'react-chartjs-2';
-import styles from './style.module.scss';
-import { String } from 'lodash';
+import { Bar, Line } from 'react-chartjs-2';
+
 import { Col, Row } from 'react-bootstrap';
 
 interface Sales {
@@ -23,7 +22,7 @@ function GetTodaySales() {
 	const [sales, setSales] = useState<Array<Sales>>([]);
 	const [products, setProducts] = useState<Array<Products>>([]);
 
-	const [customerName, setCustomerName] = useState<Array<String>>([]);
+	const [customerName, setCustomerName] = useState<Array<string>>([]);
 	const [totalPrice, setTotalPrice] = useState<Array<number>>([]);
 	const [lowStock, setLowStock] = useState<Array<Products>>([]);
 	const [productName, setProductName] = useState<Array<string>>([]);
@@ -32,6 +31,7 @@ function GetTodaySales() {
 	const [income, setIncome] = useState<number>(0);
 	const app = useContext(useFirebase);
 	const firestore = app.firestore();
+	let customerToday = new Set();
 	async function getTodaySales() {
 		const salesRef = firestore
 			.collection('sales')
@@ -43,6 +43,9 @@ function GetTodaySales() {
 			sales.push(doc.data() as Sales);
 		});
 		setSales(sales);
+		for (let data of sales) {
+			customerToday.add(data.customerName);
+		}
 	}
 	async function getProducts() {
 		const productRef = firestore.collection('products');
@@ -70,8 +73,9 @@ function GetTodaySales() {
 		setNumberInStock(numberInStock);
 	}
 	const getSalesDetails = (sales: Array<Sales>) => {
-		let customerName: Array<String> = [];
+		let customerName: Array<string> = [];
 		let totalPrice: Array<number> = [];
+
 		for (const data of sales) {
 			customerName.push(data.customerName as string);
 			totalPrice.push(parseInt(data.totalPrice));
@@ -121,6 +125,9 @@ function GetTodaySales() {
 		BarChart();
 		getProducts();
 		stockChart();
+		return () => {
+			console.log('Unmounted');
+		};
 	}, [sales, products]);
 	return (
 		<div style={{ paddingTop: '20px' }}>
@@ -130,7 +137,9 @@ function GetTodaySales() {
 						{sales.length > 0 ? (
 							<CardContent>
 								<Line data={bardata}></Line>
-
+								<Typography gutterBottom variant="h5" component="h4">
+									{moment().format('Do MMMM YYYY')}
+								</Typography>
 								<Typography variant="body2" color="textSecondary" component="p">
 									Money from Sales: N {income}
 								</Typography>

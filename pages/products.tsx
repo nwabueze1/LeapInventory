@@ -300,33 +300,32 @@ export default function Products(): JSX.Element {
 										</tr>
 									</thead>
 									<tbody className={styles.tbody}>
-										{(rowsPerPage > 0
-											? products.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-											: products
-										).map((product, index) => (
-											<tr key={product.id}>
-												<td className={stock.teadcell}>{index + 1}</td>
-												<td className={stock.teadcell}>{product.name}</td>
-												<td className={stock.teadcell}>{product.numberInStock} </td>
-												<td className={stock.teadcell}>{product.priceCash}</td>
-												<td className={stock.teadcell}>{product.priceBar}</td>
-												<td className={stock.teadcell}>{product.priceSuperMkt}</td>
-												<td>
-													<VisibilityIcon
-														color="primary"
-														className={styles.edit}
-														onClick={() => handleEdit(product as Products)}
-													/>
-												</td>
-												<td>
-													<DeleteForeverIcon
-														className={styles.edit}
-														color="secondary"
-														onClick={() => handleDelete(product._id as string)}
-													/>
-												</td>
-											</tr>
-										))}
+										{(rowsPerPage > 0 ? products.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : products)
+											.sort((a, b) => a.name.localeCompare(b.name))
+											.map((product, index) => (
+												<tr key={product.id}>
+													<td className={stock.teadcell}>{index + 1}</td>
+													<td className={stock.teadcell}>{product.name}</td>
+													<td className={stock.teadcell}>{product.numberInStock} </td>
+													<td className={stock.teadcell}>{product.priceCash}</td>
+													<td className={stock.teadcell}>{product.priceBar}</td>
+													<td className={stock.teadcell}>{product.priceSuperMkt}</td>
+													<td>
+														<VisibilityIcon
+															color="primary"
+															className={styles.edit}
+															onClick={() => handleEdit(product as Products)}
+														/>
+													</td>
+													<td>
+														<DeleteForeverIcon
+															className={styles.edit}
+															color="secondary"
+															onClick={() => handleDelete(product._id as string)}
+														/>
+													</td>
+												</tr>
+											))}
 									</tbody>
 									<tfoot>
 										<tr>

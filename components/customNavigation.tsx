@@ -26,6 +26,9 @@ export default function Navigation() {
 					<Nav.Link onClick={() => router.push('/dailyStock')}>
 						<span className={styles.navlink}>DailyStock</span>
 					</Nav.Link>
+					<Nav.Link onClick={() => router.push('/pendingOrders')}>
+						<span className={styles.navlink}>PendingOrder</span>
+					</Nav.Link>
 				</Nav>
 				<Form inline>
 					<SimpleMenu></SimpleMenu>

@@ -21,6 +21,7 @@ import Navigation from '../components/customNavigation';
 import AuthGuard from '../components/Authentification';
 import TablePaginationActions from '../components/pagination';
 import TablePagination from '@material-ui/core/TablePagination';
+import { CircularProgress } from '@material-ui/core';
 
 interface Customers {
 	id: string;
@@ -382,36 +383,44 @@ function Customers(): JSX.Element {
 									</thead>
 									<tbody>
 										{searchQuery.length > 0
-											? filteredCustomer.map((customer: Customers, index: number) => (
-													<tr key={customer.id}>
-														<td className={styles.teadcell}>{index + 1}</td>
-														<td className={styles.teadcell}>{customer.name}</td>
-														<td className={styles.teadcell}>{customer.email}</td>
-														<td className={styles.teadcell}>{customer.category}</td>
-														<td className={styles.teadcell}>{customer.address}</td>
-														<td className={styles.teadcell}>{customer.phone}</td>
-														<td>
-															<span
-																style={{ cursor: 'pointer' }}
-																onClick={() => {
-																	handleEdit(customer as EditCustomers);
-																}}
-															>
-																<Visibility color="primary"></Visibility>
-															</span>
-														</td>
-														<td>
-															<span
-																style={{ cursor: 'pointer' }}
-																onClick={() => {
-																	handleDelete(customer._id as string);
-																}}
-															>
-																<DeleteIcon style={{ cursor: 'pointer' }} color="secondary"></DeleteIcon>
-															</span>
-														</td>
-													</tr>
-											  ))
+											? filteredCustomer
+													.sort((a, b) => a.name.localeCompare(b.name))
+													.map((customer: Customers, index: number) => (
+														<tr key={customer.id}>
+															<td className={styles.teadcell}>{index + 1}</td>
+															<td className={styles.teadcell}>{customer.name}</td>
+															<td className={styles.teadcell}>{customer.email}</td>
+															<td className={styles.teadcell}>{customer.category}</td>
+															<td className={styles.teadcell}>{customer.address}</td>
+															<td className={styles.teadcell}>{customer.phone}</td>
+															<td>
+																<span
+																	style={{ cursor: 'pointer' }}
+																	onClick={() => router.push(`customers/${customer.id}`)}
+																>
+																	<Visibility color="primary"></Visibility>
+																</span>
+															</td>
+															<td>
+																<span
+																	style={{ cursor: 'pointer' }}
+																	onClick={() => {
+																		handleEdit(customer as EditCustomers);
+																	}}
+																>
+																	<Edit></Edit>
+																</span>
+																<span
+																	style={{ cursor: 'pointer' }}
+																	onClick={() => {
+																		handleDelete(customer._id as string);
+																	}}
+																>
+																	<DeleteIcon style={{ cursor: 'pointer' }} color="secondary"></DeleteIcon>
+																</span>
+															</td>
+														</tr>
+													))
 											: (rowsPerPage > 0
 													? customers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
 													: customers
@@ -426,14 +435,20 @@ function Customers(): JSX.Element {
 														<td>
 															<span
 																style={{ cursor: 'pointer' }}
-																onClick={() => {
-																	handleEdit(customer as EditCustomers);
-																}}
+																onClick={() => router.push(`customers/${customer.id}`)}
 															>
 																<Visibility color="primary"></Visibility>
 															</span>
 														</td>
 														<td>
+															<span
+																style={{ cursor: 'pointer' }}
+																onClick={() => {
+																	handleEdit(customer as EditCustomers);
+																}}
+															>
+																<Edit></Edit>
+															</span>
 															<span
 																style={{ cursor: 'pointer' }}
 																onClick={() => {

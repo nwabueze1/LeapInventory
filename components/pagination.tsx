@@ -44,7 +44,7 @@ export default function TablePaginationActions(props: TablePaginationActionsProp
 	};
 
 	return (
-		<div className={classes.root}>
+		<span className={classes.root}>
 			<IconButton onClick={handleFirstPageButtonClick} disabled={page === 0} aria-label="first page">
 				{theme.direction === 'rtl' ? <LastPageIcon /> : <FirstPageIcon />}
 			</IconButton>
@@ -65,6 +65,6 @@ export default function TablePaginationActions(props: TablePaginationActionsProp
 			>
 				{theme.direction === 'rtl' ? <FirstPageIcon /> : <LastPageIcon />}
 			</IconButton>
-		</div>
+		</span>
 	);
 }

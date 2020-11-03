@@ -15,7 +15,7 @@ export default function addGenres(): JSX.Element {
 	const app = useContext(useFirebase);
 	const firestore = app.firestore();
 	const handleCategory = async () => {
-		if (categories.length < 4) return toast.error('to short');
+		if (categories.length < 2) return toast.error('to short');
 		const category: newCategory = {
 			id: `${Date.now()}`,
 			name: categories,
